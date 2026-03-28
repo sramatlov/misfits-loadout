@@ -16,7 +16,7 @@
   --def: #c79a3a;  --def-dim: rgba(199,154,58,0.06);
   --danger: #c7553a;
   --stress-phys: #883030;
-  --stress-ment: #c43020;
+  --stress-ment: #a82828;
   --corruption: #7b4ac7; --corr-dim: rgba(123,74,199,0.10);
   --muted: #6a7a8a;
   --text: #c4ccd6;
@@ -315,13 +315,14 @@ button{appearance:none;cursor:pointer}
 .rbtn{flex:1;background:var(--inset);border:2px solid var(--border-heavy);color:var(--muted);padding:12px;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:var(--r);transition:all .15s;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
 .rbtn:active{background:var(--raised);color:var(--text);border-color:var(--accent)}
 .rbtn+.rbtn{border-color:rgba(199,85,58,.25)}
-.cfm{display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;background:rgba(8,11,16,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:24px}
+.cfm{display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;background:rgba(8,11,16,0.75);padding:24px}
 .cfm.on{display:flex}
-.cfm-box{background:var(--raised);border:1px solid var(--border-heavy);border-top:3px solid var(--danger);border-radius:12px;padding:28px 24px 20px;max-width:320px;width:100%;text-align:center}
-.cfm-t{font-size:16px;color:var(--text);margin-bottom:6px;line-height:1.5}
+.cfm-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cfm-box{background:rgba(8,11,16,0.55);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid rgba(255,255,255,0.10);border-top:3px solid var(--accent);border-radius:16px;padding:28px 24px 20px;max-width:320px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.07);position:relative;z-index:1}
+.cfm-t{font-size:16px;color:var(--bright);margin-bottom:6px;line-height:1.5;font-family:Rajdhani,sans-serif;font-weight:700;font-size:20px;letter-spacing:1px}
 .cfm-sub{font-size:12px;color:var(--muted);margin-bottom:20px;letter-spacing:.5px}
 .cfm-row{display:flex;gap:10px}
-.cfm-y{flex:1;padding:12px;background:var(--danger);color:#fff;border:none;border-radius:var(--r);font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.cfm-y{flex:1;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
 .cfm-n{flex:1;padding:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
 
 /* ─── GM VIEW ─── */

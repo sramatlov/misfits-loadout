@@ -96,7 +96,7 @@ function applyCharacterTheme(k) {
 }
 
 function selectChar(k)  { initS(k); applyCharacterTheme(k); $('login').classList.add('off'); $('app').classList.add('on'); renderAll(); }
-function switchChar()    { showCfm("Abandoning post?", "Harry's running on autopilot. Don't blame us if he lands in a sun.", () => { $('app').classList.remove('on'); $('login').classList.remove('off'); switchTab('moves'); }); }
+function switchChar() { const [t, sub] = randomLogoutLine(); showCfm(t, sub, () => { $('app').classList.remove('on'); $('login').classList.remove('off'); switchTab('moves'); }); }
 
 // ─── RENDER ALL ───
 function renderAll() {
@@ -364,8 +364,138 @@ function rGuide() {
 function togColl(id)    { $(id).classList.toggle('open'); }
 function resetScene()   { const c = CHARS[CK]; c.stunts.forEach(s => S.moves[s.id] = false); saveLS(); rMoves(); addLog('Scene reset'); }
 function confirmReset() { showCfm("Start a new session?", "All stress, fate points and consequences reset. The debt collectors stay.", () => { const c = CHARS[CK]; S.fp = c.refresh; S.stress.phys.fill(false); S.stress.ment.fill(false); Object.keys(S.moves).forEach(k => S.moves[k] = false); Object.keys(S.cons).forEach(k => S.cons[k] = null); Object.keys(S.fi).forEach(k => S.fi[k] = 0); if (S.corruption) S.corruption.fill(false); S.log = []; saveLS(); renderAll(); addLog('New session started'); }); }
-function showCfm(t, sub, fn) { $('cfmT').textContent = t; $('cfmSub').textContent = sub || ''; $('cfmY').onclick = () => { $('cfm').classList.remove('on'); fn(); }; $('cfm').classList.add('on'); }
-function cancelCfm()    { $('cfm').classList.remove('on'); }
+const LOGOUT_LINES = [
+  ["Abandoning post?", "Harry's running on autopilot. Don't blame us if he lands in a sun."],
+  ["Stepping out?", "The cargo won't smuggle itself. Probably."],
+  ["Leaving already?", "We'll tell the authorities you were never here."],
+  ["Deserting the crew?", "Bold move. Harry's already locked you out of the good bunk."],
+  ["Going dark?", "Comms cut. Black box wiped. Standard procedure."],
+  ["Jettisoning yourself?", "No refunds on the airlock."],
+  ["Running from something?", "Smart. We'd run too."],
+  ["Logging off?", "Your tab at the docking bar is still open, by the way."],
+  ["Clocking out?", "Fine. But if we die out here it's on you."],
+  ["Bailing?", "Your cut of the cargo stays. The debt doesn't."],
+];
+
+function randomLogoutLine() { return LOGOUT_LINES[Math.floor(Math.random() * LOGOUT_LINES.length)]; }
+let cfmAnim = null;
+function startCircuit() {
+  const canvas = $('cfmCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
+  const GRID = 28;
+  const cols = Math.ceil(canvas.width / GRID) + 1;
+  const rows = Math.ceil(canvas.height / GRID) + 1;
+
+  // Build a random circuit grid — nodes and traces
+  const nodes = [];
+  for (let x = 0; x < cols; x++) {
+    for (let y = 0; y < rows; y++) {
+      if (Math.random() < 0.18) nodes.push({ x, y });
+    }
+  }
+
+  // Traces: horizontal and vertical segments between nearby nodes
+  const traces = [];
+  for (let i = 0; i < 180; i++) {
+    const x = Math.floor(Math.random() * cols);
+    const y = Math.floor(Math.random() * rows);
+    const horiz = Math.random() > 0.5;
+    const len = Math.floor(Math.random() * 5) + 2;
+    traces.push({ x, y, horiz, len, px: x * GRID, py: y * GRID });
+  }
+
+  // Pulses travelling along traces
+  const pulses = [];
+  function spawnPulse() {
+    const t = traces[Math.floor(Math.random() * traces.length)];
+    pulses.push({ trace: t, progress: 0, speed: 0.008 + Math.random() * 0.012, alpha: 0.9 });
+  }
+  for (let i = 0; i < 12; i++) spawnPulse();
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw traces
+    traces.forEach(t => {
+      const ex = t.horiz ? (t.x + t.len) * GRID : t.x * GRID;
+      const ey = t.horiz ? t.y * GRID : (t.y + t.len) * GRID;
+      ctx.beginPath();
+      ctx.moveTo(t.px, t.py);
+
+      // L-shaped trace with a corner turn
+      if (Math.random() < 0.001) { /* occasional reroute */ }
+      const midX = t.horiz ? ex : t.px;
+      const midY = t.horiz ? t.py : ey;
+      ctx.lineTo(midX, midY);
+      ctx.lineTo(ex, ey);
+      ctx.strokeStyle = accent;
+      ctx.globalAlpha = 0.08;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // Draw nodes (pads)
+    ctx.globalAlpha = 0.15;
+    nodes.forEach(n => {
+      ctx.beginPath();
+      ctx.arc(n.x * GRID, n.y * GRID, 3, 0, Math.PI * 2);
+      ctx.fillStyle = accent;
+      ctx.fill();
+      // Outer ring
+      ctx.beginPath();
+      ctx.arc(n.x * GRID, n.y * GRID, 6, 0, Math.PI * 2);
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    });
+
+    // Draw pulses
+    pulses.forEach((p, idx) => {
+      p.progress += p.speed;
+      if (p.progress >= 1) { pulses.splice(idx, 1); spawnPulse(); return; }
+
+      const t = p.trace;
+      const ex = t.horiz ? (t.x + t.len) * GRID : t.x * GRID;
+      const ey = t.horiz ? t.y * GRID : (t.y + t.len) * GRID;
+      const px = t.px + (ex - t.px) * p.progress;
+      const py = t.py + (ey - t.py) * p.progress;
+
+      const grd = ctx.createRadialGradient(px, py, 0, px, py, 10);
+      grd.addColorStop(0, accent);
+      grd.addColorStop(1, 'transparent');
+      ctx.globalAlpha = p.alpha * (1 - p.progress * 0.5);
+      ctx.beginPath();
+      ctx.arc(px, py, 4, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+
+      // Tail glow
+      ctx.beginPath();
+      ctx.arc(px, py, 2, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.globalAlpha = 0.6 * (1 - p.progress);
+      ctx.fill();
+    });
+
+    ctx.globalAlpha = 1;
+    cfmAnim = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function stopCircuit() {
+  if (cfmAnim) { cancelAnimationFrame(cfmAnim); cfmAnim = null; }
+  const canvas = $('cfmCanvas');
+  if (canvas) { const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height); }
+}
+
+function showCfm(t, sub, fn) { $('cfmT').textContent = t; $('cfmSub').textContent = sub || ''; $('cfmY').onclick = () => { $('cfm').classList.remove('on'); stopCircuit(); fn(); }; $('cfm').classList.add('on'); startCircuit(); }
+function cancelCfm()    { $('cfm').classList.remove('on'); stopCircuit(); }
 
 // ─── GM VIEW ───
 function openGM()  { $('login').classList.add('off'); $('gm').classList.add('on'); rGMTabs(); rGMAspects(); rGMSkills(); rGMMoves(); rGMRules(); }
