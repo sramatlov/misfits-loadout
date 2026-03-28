@@ -135,16 +135,19 @@ function rStress() { rTrack('physB', S.stress.phys, CHARS[CK].stress.phys, 'lblB
 function rTrack(id, arr, cfg, iconId, isPhys) {
   const w = $(id); w.innerHTML = '';
   const base = cfg.boxes - cfg.bonus;
-  const allFull = arr.every(v => v);
+  const allFull = arr.slice(0, base).every(v => v);
   const icon = $(iconId);
   if (icon) {
-    if (allFull) {
-      icon.classList.remove('maxed');
-      void icon.offsetWidth;
+    const wasMaxed = icon.classList.contains('maxed');
+    if (allFull && !wasMaxed) {
+      // Newly maxed — trigger shake
       icon.classList.add('maxed');
-    } else {
+      void icon.offsetWidth;
+    } else if (!allFull && wasMaxed) {
+      // No longer maxed — remove
       icon.classList.remove('maxed');
     }
+    // If already maxed, leave it — don't restart the animation
   }
   arr.forEach((v, i) => {
     const b = document.createElement('div');
@@ -166,9 +169,13 @@ function rCorr() {
   const allFull = S.corruption.every(v => v);
   const icon = $('lblOmega');
   if (icon) {
-    icon.classList.remove('maxed');
-    void icon.offsetWidth;
-    if (allFull) icon.classList.add('maxed');
+    const wasMaxed = icon.classList.contains('maxed');
+    if (allFull && !wasMaxed) {
+      icon.classList.add('maxed');
+      void icon.offsetWidth;
+    } else if (!allFull && wasMaxed) {
+      icon.classList.remove('maxed');
+    }
   }
   S.corruption.forEach((v, i) => {
     const b = document.createElement('div');
