@@ -79,7 +79,20 @@ function showSummary(k) {
 }
 
 function closeSummary() { $('summary').classList.remove('on'); }
-function selectChar(k)  { initS(k); $('login').classList.add('off'); $('app').classList.add('on'); renderAll(); }
+
+function applyCharacterTheme(k) {
+  const themes = {
+    cap:    { accent: '#c49a38', dim: 'rgba(196,154,56,0.10)',  mid: 'rgba(196,154,56,0.20)'  },
+    howard: { accent: '#4a9eb8', dim: 'rgba(74,158,184,0.10)',  mid: 'rgba(74,158,184,0.20)'  },
+    thowra: { accent: '#8a6ab8', dim: 'rgba(138,106,184,0.10)', mid: 'rgba(138,106,184,0.20)' }
+  };
+  const t = themes[k], r = document.documentElement.style;
+  r.setProperty('--accent', t.accent);
+  r.setProperty('--accent-dim', t.dim);
+  r.setProperty('--accent-mid', t.mid);
+}
+
+function selectChar(k)  { initS(k); applyCharacterTheme(k); $('login').classList.add('off'); $('app').classList.add('on'); renderAll(); }
 function switchChar()    { showCfm('Log out? Session progress is saved.', () => { $('app').classList.remove('on'); $('login').classList.remove('off'); switchTab('moves'); }); }
 
 // ─── RENDER ALL ───
