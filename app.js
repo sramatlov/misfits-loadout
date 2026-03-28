@@ -464,40 +464,90 @@ function initStars() {
     });
   }
 
-  // Draw a small freighter silhouette at (x, y) with given size + opacity
+  // Draw a freighter silhouette at (x, y) with given size + opacity
   function drawShip(x, y, size, opacity) {
     ctx.save();
     ctx.globalAlpha = opacity;
     ctx.translate(x, y);
+    ctx.scale(size, size);
 
-    // Main hull
-    ctx.fillStyle = 'rgba(180,195,210,1)';
+    const col = 'rgba(160,185,200,1)';
+    const dark = 'rgba(80,100,115,1)';
+
+    ctx.fillStyle = col;
+
+    // Main hull — wide flat body
     ctx.beginPath();
-    ctx.moveTo(size * 20, 0);
-    ctx.lineTo(size * -10, size * -4);
-    ctx.lineTo(size * -18, size * -3);
-    ctx.lineTo(size * -18, size * 3);
-    ctx.lineTo(size * -10, size * 4);
+    ctx.rect(-40, -6, 72, 14);
+    ctx.fill();
+
+    // Nose — tapered front
+    ctx.beginPath();
+    ctx.moveTo(32, -6);
+    ctx.lineTo(48, -2);
+    ctx.lineTo(48, 2);
+    ctx.lineTo(32, 6);
     ctx.closePath();
     ctx.fill();
 
-    // Cockpit bump
+    // Cockpit — raised section on top front
     ctx.beginPath();
-    ctx.moveTo(size * 8, 0);
-    ctx.lineTo(size * 4, size * -5);
-    ctx.lineTo(size * -2, size * -5);
-    ctx.lineTo(size * -2, 0);
-    ctx.closePath();
+    ctx.rect(8, -13, 22, 8);
     ctx.fill();
 
-    // Engine glow
-    const grd = ctx.createRadialGradient(size * -18, 0, 0, size * -18, 0, size * 7);
-    grd.addColorStop(0, 'rgba(100,160,255,0.9)');
-    grd.addColorStop(0.4, 'rgba(80,120,220,0.4)');
-    grd.addColorStop(1, 'rgba(60,80,180,0)');
+    // Cockpit window — dark
+    ctx.fillStyle = dark;
+    ctx.beginPath();
+    ctx.rect(14, -11, 10, 5);
+    ctx.fill();
+    ctx.fillStyle = col;
+
+    // Top turret bump
+    ctx.beginPath();
+    ctx.rect(-5, -10, 10, 5);
+    ctx.fill();
+
+    // Underbelly — lower cargo section
+    ctx.beginPath();
+    ctx.rect(-30, 6, 45, 8);
+    ctx.fill();
+
+    // Landing gear bumps
+    ctx.fillStyle = dark;
+    ctx.beginPath();
+    ctx.rect(-22, 14, 6, 4);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.rect(2, 14, 6, 4);
+    ctx.fill();
+    ctx.fillStyle = col;
+
+    // Rear engine block
+    ctx.beginPath();
+    ctx.rect(-52, -8, 14, 18);
+    ctx.fill();
+
+    // Engine glow — blue/white
+    const grd = ctx.createRadialGradient(-54, 0, 0, -54, 0, 14);
+    grd.addColorStop(0, 'rgba(140,200,255,0.95)');
+    grd.addColorStop(0.3, 'rgba(80,140,255,0.5)');
+    grd.addColorStop(1, 'rgba(40,80,200,0)');
     ctx.fillStyle = grd;
     ctx.beginPath();
-    ctx.ellipse(size * -18, 0, size * 7, size * 3, 0, 0, Math.PI * 2);
+    ctx.ellipse(-54, 0, 14, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Engine trail
+    const trail = ctx.createLinearGradient(-54, 0, -90, 0);
+    trail.addColorStop(0, 'rgba(100,180,255,0.25)');
+    trail.addColorStop(1, 'rgba(60,120,255,0)');
+    ctx.fillStyle = trail;
+    ctx.beginPath();
+    ctx.moveTo(-54, -5);
+    ctx.lineTo(-90, -1);
+    ctx.lineTo(-90, 1);
+    ctx.lineTo(-54, 5);
+    ctx.closePath();
     ctx.fill();
 
     ctx.restore();
@@ -526,7 +576,7 @@ function initStars() {
     nextShip -= dt;
     if (nextShip <= 0 && !ship.active) {
       ship.active = true;
-      ship.x = -60;
+      ship.x = -120;
       ship.y = h * (0.15 + Math.random() * 0.65);
       ship.size = 0.7 + Math.random() * 0.6;
       ship.speed = w / (4 + Math.random() * 3); // px/sec — crosses in ~4-7s
@@ -541,7 +591,7 @@ function initStars() {
                    : progress > 0.85 ? (1 - progress) / 0.15 * 0.55
                    : 0.55;
       drawShip(ship.x, ship.y, ship.size, ship.opacity);
-      if (ship.x > w + 60) ship.active = false;
+      if (ship.x > w + 120) ship.active = false;
     }
 
     requestAnimationFrame(draw);
