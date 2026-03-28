@@ -136,7 +136,7 @@ const ICONS = {
 const CHARS = {
 
   cap: {
-    id:'cap', name:'Montgomery "Cap" Sparks', displayName:'Cap Sparks',
+    id:'cap', name:'Montgomery "Cap" Sparks', displayName:'Cap',
     sub:'Rogue Ex-Space Marine', flavor:'They drew first blood.',
     refresh: 4,
     summary: {
@@ -196,8 +196,8 @@ const CHARS = {
   },
 
   howard: {
-    id:'howard', name:'Howard "Clank"', displayName:'Howard "Clank"',
-    sub:'Headstrong Maverick Bioengineer', flavor:'How does this work?',
+    id:'howard', name:'Howard "Clank"', displayName:'Howard',
+    sub:'Maverick Bioengineer', flavor:'How does this work?',
     refresh: 4,
     summary: {
       hc: 'Terrai Headstrong Maverick Bioengineer',
@@ -255,7 +255,7 @@ const CHARS = {
   },
 
   thowra: {
-    id:'thowra', name:'Thowra Frostwhisper', displayName:'Thowra Frostwhisper',
+    id:'thowra', name:'Thowra Frostwhisper', displayName:'Thowra',
     sub:'Looking for a Hive', flavor:'Out of spite.',
     refresh: 4,
     summary: {
