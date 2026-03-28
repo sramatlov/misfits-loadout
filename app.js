@@ -578,7 +578,7 @@ function initStars() {
       ship.active = true;
       ship.x = -120;
       ship.y = h * (0.15 + Math.random() * 0.65);
-      ship.size = 0.7 + Math.random() * 0.6;
+      ship.size = 0.25 + Math.random() * 0.15;
       ship.speed = w / (4 + Math.random() * 3); // px/sec — crosses in ~4-7s
       ship.opacity = 0;
       nextShip = 15 + Math.random() * 8;
