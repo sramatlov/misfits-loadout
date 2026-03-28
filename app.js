@@ -101,11 +101,11 @@ function switchChar()    { showCfm('Log out? Session progress is saved.', () => 
 // ─── RENDER ALL ───
 function renderAll() {
   const c = CHARS[CK];
-  $('hName').textContent = c.displayName; $('hName').onclick = switchChar;
+  $('hName').textContent = c.displayName;
   $('hSub').textContent = c.sub;
-  // Portrait in header
+  // Portrait in header — tapping it goes back to login
   const p = $('hPortrait');
-  if (p) { p.innerHTML = PORTRAITS[CK]; p.style.color = 'var(--accent)'; }
+  if (p) { p.innerHTML = PORTRAITS[CK]; p.style.color = 'var(--accent)'; p.onclick = switchChar; }
   rFP(); rStress(); rCorr(); rTabs(); rAct(); rMoves(); rCons(); rLog(); rSkills(); rAspects(); rGuide();
 }
 
