@@ -53,7 +53,7 @@ function animPulse(el, cls) {
 }
 
 // ─── LOGIN + SUMMARY ───
-const CHAR_COLORS = { cap: '#b03020', howard: '#b07820', thowra: '#2840a8' };
+const CHAR_COLORS = { cap: '#c45838', howard: '#c4a038', thowra: '#38a8c4' };
 
 function rLogin() {
   const g = $('loginGrid'); g.innerHTML = '';
@@ -84,9 +84,9 @@ function closeSummary() { $('summary').classList.remove('on'); }
 
 function applyCharacterTheme(k) {
   const themes = {
-    cap:    { accent: '#b03020', dim: 'rgba(176,48,32,0.10)',   mid: 'rgba(176,48,32,0.20)'   },
-    howard: { accent: '#b07820', dim: 'rgba(176,120,32,0.10)',  mid: 'rgba(176,120,32,0.20)'  },
-    thowra: { accent: '#2840a8', dim: 'rgba(40,64,168,0.10)',   mid: 'rgba(40,64,168,0.20)'   }
+    cap:    { accent: '#c45838', dim: 'rgba(196,88,56,0.10)',   mid: 'rgba(196,88,56,0.20)'   },
+    howard: { accent: '#c4a038', dim: 'rgba(196,160,56,0.10)',  mid: 'rgba(196,160,56,0.20)'  },
+    thowra: { accent: '#38a8c4', dim: 'rgba(56,168,196,0.10)',  mid: 'rgba(56,168,196,0.20)'  }
   };
   const t = themes[k], r = document.documentElement.style;
   r.setProperty('--accent', t.accent);
