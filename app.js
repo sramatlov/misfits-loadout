@@ -130,15 +130,25 @@ function rFP() {
   r.appendChild(p);
 }
 
-// ─── STRESS ───
-function rStress() { rTrack('physB', S.stress.phys, CHARS[CK].stress.phys); rTrack('mentB', S.stress.ment, CHARS[CK].stress.ment); }
-function rTrack(id, arr, cfg) {
+function rStress() { rTrack('physB', S.stress.phys, CHARS[CK].stress.phys, 'lblBones'); rTrack('mentB', S.stress.ment, CHARS[CK].stress.ment, 'lblBrain'); }
+function rTrack(id, arr, cfg, iconId) {
   const w = $(id); w.innerHTML = '';
   const base = cfg.boxes - cfg.bonus;
   const allFull = arr.every(v => v);
+  // Update icon state
+  const icon = $(iconId);
+  if (icon) {
+    if (allFull) {
+      icon.classList.remove('maxed');
+      void icon.offsetWidth; // force reflow to restart animation
+      icon.classList.add('maxed');
+    } else {
+      icon.classList.remove('maxed');
+    }
+  }
   arr.forEach((v, i) => {
     const b = document.createElement('div');
-    b.className = 'str-box' + (v ? ' on' : '') + (i >= base ? ' bonus' : '') + (allFull ? ' maxed' : '');
+    b.className = 'str-box' + (v ? ' on' : '') + (i >= base ? ' bonus' : '');
     b.textContent = i + 1;
     b.onclick = () => {
       arr[i] = !arr[i]; saveLS(); rStress(); addLog(`${id.includes('phys') ? 'Physical' : 'Mental'} stress ${i+1} ${arr[i] ? 'marked' : 'cleared'}`);

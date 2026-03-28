@@ -110,9 +110,11 @@ button{appearance:none;cursor:pointer}
 .fp-dot:active{transform:scale(.88)}
 .fp-add{width:26px;height:26px;border-radius:50%;border:1.5px dashed var(--muted);background:transparent;color:var(--muted);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:Rajdhani,sans-serif;font-weight:700;line-height:1;padding:0;transition:all .15s}
 .fp-add:active{border-color:var(--accent);color:var(--accent)}
-.str-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding:8px 0 14px;border-top:1px solid var(--border-light)}
+.str-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:10px;padding:8px 0 14px;border-top:1px solid var(--border-light)}
+.str-row-main{display:flex;align-items:center;justify-content:space-between;flex:1;gap:8px;min-width:0}
 .str-lbl-icon{width:24px;height:24px;flex-shrink:0;color:var(--accent)}
 .str-lbl-icon svg{width:100%;height:100%;display:block}
+.str-lbl-icon.maxed{color:var(--accent);filter:drop-shadow(0 0 6px var(--accent));animation:stressShake .4s ease-in-out 3}
 .str-trk{display:flex;align-items:center;gap:6px}
 .str-sep{width:1px;height:28px;background:var(--border-heavy);margin:0 4px}
 .str-lbl{font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
@@ -131,9 +133,8 @@ button{appearance:none;cursor:pointer}
 }
 .str-box.bonus{border-style:dashed;border-bottom-style:dashed;border-color:var(--border)}
 .str-box.on{border-color:var(--danger);border-bottom-color:var(--danger);background:var(--danger);color:#fff;box-shadow:0 0 8px rgba(199,85,58,.25)}
-.str-box.maxed{border-color:var(--accent) !important;background:var(--accent) !important;color:var(--bg) !important;animation:stressShake .35s ease-in-out infinite;box-shadow:0 0 12px var(--accent-mid) !important}
 .str-box:active{transform:scale(.9)}
-.corr-trk{display:flex;align-items:center;gap:5px}
+.corr-trk{display:flex;align-items:center;gap:5px;width:100%;padding-top:6px;border-top:1px solid var(--border-light)}
 .corr-box{width:30px;height:30px;border:2px solid var(--corruption);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;background:var(--inset)}
 .corr-box.on{background:var(--corruption);box-shadow:0 0 8px rgba(123,74,199,.35)}
 .corr-box:active{transform:scale(.9)}
