@@ -93,7 +93,7 @@ function applyCharacterTheme(k) {
 }
 
 function selectChar(k)  { initS(k); applyCharacterTheme(k); $('login').classList.add('off'); $('app').classList.add('on'); renderAll(); }
-function switchChar()    { showCfm('Log out? Session progress is saved.', () => { $('app').classList.remove('on'); $('login').classList.remove('off'); switchTab('moves'); }); }
+function switchChar()    { showCfm('Log out? Session progress is saved.', () => { $('app').classList.remove('on'); $('login').classList.remove('off'); switchTab('moves'); document.documentElement.style.setProperty('--accent','#c49a38'); document.documentElement.style.setProperty('--accent-dim','rgba(196,154,56,0.10)'); document.documentElement.style.setProperty('--accent-mid','rgba(196,154,56,0.20)'); }); }
 
 // ─── RENDER ALL ───
 function renderAll() {
