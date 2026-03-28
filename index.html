@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Misfits Loadout</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="login">
+  <canvas id="stars"></canvas>
+  <div class="l-title">Intergalactic<br>Cargo Inc.</div>
+  <div class="l-sub">Harry the Hauler · Field Terminal</div>
+  <div class="l-grid" id="loginGrid"></div>
+  <div class="gm-entry" onclick="openGM()">
+    <span class="gm-icon">⚙</span> GM Reference
+  </div>
+</div>
+
+<!-- ═══ SUMMARY OVERLAY ═══ -->
+<div id="summary"><div class="sum-panel" id="sumPanel"></div></div>
+
+<!-- ═══ GM VIEW ═══ -->
+<div id="gm">
+  <div class="gm-hdr">
+    <div class="gm-hdr-left">
+      <div class="gm-back" onclick="closeGM()">◂ Back</div>
+      <div class="gm-title">GM Reference</div>
+    </div>
+  </div>
+  <div class="tabs" id="gmTabs"></div>
+  <div class="content">
+    <div class="pnl on" id="gm-aspects"><div id="gmAspC"></div></div>
+    <div class="pnl"    id="gm-skills"><div id="gmSkC"></div></div>
+    <div class="pnl"    id="gm-moves"><div id="gmMvC"></div></div>
+    <div class="pnl"    id="gm-rules"><div id="gmRuC"></div></div>
+    <div class="bspc"></div>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-r1">
+      <div class="hdr-id">
+        <div class="hdr-nm" id="hName"></div>
+        <div class="hdr-sub" id="hSub"></div>
+      </div>
+      <div class="fp-area">
+        <div class="fp-lbl">Fate Points</div>
+        <div class="fp-row" id="fpRow"></div>
+      </div>
+    </div>
+    <div class="str-row">
+      <div class="str-trk">
+        <div class="str-lbl">Phys</div>
+        <div class="str-boxes" id="physB"></div>
+      </div>
+      <div class="str-sep"></div>
+      <div class="str-trk">
+        <div class="str-lbl">Ment</div>
+        <div class="str-boxes" id="mentB"></div>
+      </div>
+      <div class="corr-trk" id="corrBar" style="display:none">
+        <div class="str-sep"></div>
+        <div class="str-lbl" style="color:var(--corruption)">Ω</div>
+        <div class="str-boxes" id="corrB"></div>
+      </div>
+    </div>
+  </div>
+  <div class="tabs" id="tabBar"></div>
+  <div class="content">
+    <!-- MOVES -->
+    <div class="pnl on" id="pnl-moves">
+      <div class="slbl">What can I do?</div>
+      <div class="act-grid" id="actGrid"></div>
+      <div class="act-detail" id="actDetail"></div>
+      <div class="slbl">Signature Moves</div>
+      <div id="movesC"></div>
+      <div class="slbl">Free Actions</div>
+      <div class="coll" id="freeAct">
+        <div class="coll-h" onclick="togColl('freeAct')"><div class="coll-t">Things everyone forgets they can do</div><div class="coll-ch">▾</div></div>
+        <div class="coll-b">
+          <div class="fa-item"><strong>Invoke any aspect</strong> — 1 FP: +2 to your roll, +2 to another's, +2 to opposition, or reroll. Any aspect: yours, theirs, scene, consequences.</div>
+          <div class="fa-item"><strong>Stack invokes</strong> — Multiple different aspects on one roll. Free invokes stack with paid.</div>
+          <div class="fa-item"><strong>Declare a story detail</strong> — 1 FP to make something narratively true. Justify via your aspects.</div>
+          <div class="fa-item"><strong>Compel anyone</strong> — 1 FP on any relevant aspect (GM permission). Or compel your own to earn 1 FP.</div>
+          <div class="fa-item"><strong>Concede a conflict</strong> — Before dice: exit on your terms. Earn 1 FP + 1 per consequence taken.</div>
+          <div class="fa-item"><strong>Assist someone</strong> — Spend your action: +1 to someone's roll. Describe how you help.</div>
+          <div class="before-r">Before rolling, ask: What could stop this? What could go wrong? What would be fun if it did?</div>
+        </div>
+      </div>
+      <div class="slbl">Damage Report</div>
+      <div id="consC"></div>
+      <div class="slbl">Ship's Log</div>
+      <div class="coll" id="logColl">
+        <div class="coll-h" onclick="togColl('logColl')"><div class="coll-t">Activity Log</div><div class="coll-ch">▾</div></div>
+        <div class="coll-b"><div class="log-body" id="logBody"></div></div>
+      </div>
+      <div class="bspc"></div>
+    </div>
+    <!-- SKILLS -->
+    <div class="pnl" id="pnl-skills">
+      <div class="vtog"><button class="vtog-b on" onclick="setView('groups')">Groups</button><button class="vtog-b" onclick="setView('ladder')">Ladder</button></div>
+      <div class="sk-grid" id="skGrid"></div>
+      <div class="ladder"><b>+5</b> Superb · <b>+4</b> Great · <b>+3</b> Good · <b>+2</b> Fair · <b>+1</b> Average · <b>+0</b> Mediocre</div>
+      <div class="bspc"></div>
+    </div>
+    <!-- ASPECTS -->
+    <div class="pnl" id="pnl-aspects">
+      <div class="slbl">Your Aspects</div>
+      <div id="aspC"></div>
+      <div class="slbl">How Aspects Work</div>
+      <div class="asp-ref">
+        <strong class="ri">INVOKE</strong> — 1 FP: +2 to roll, +2 to another's, +2 to opposition, or reroll. Different aspect per invoke.<br>
+        <strong class="rc">COMPEL</strong> — Accept complication, earn 1 FP. <em>Event:</em> [aspect]+[situation] = bad thing happens. <em>Decision:</em> you'd decide [bad idea].<br>
+        <strong class="rf">FREE INVOKE</strong> — From Create Advantage. No FP cost. Stacks with paid and with each other.<br>
+        <strong>REFUSE COMPEL</strong> — Costs 1 FP to say no.
+      </div>
+      <div class="coll" style="margin-top:8px" id="aspTypes">
+        <div class="coll-h" onclick="togColl('aspTypes')"><div class="coll-t">Aspect Types</div><div class="coll-ch">▾</div></div>
+        <div class="coll-b">
+          <div class="fa-item"><strong>Character</strong> — permanent, on your sheet</div>
+          <div class="fa-item"><strong>Situation</strong> — lasts for a scene or until irrelevant</div>
+          <div class="fa-item"><strong>Boost</strong> — lasts until invoked once, then gone</div>
+          <div class="fa-item"><strong>Consequence</strong> — lasts until recovered. They're aspects too — opponents can invoke them against you</div>
+          <div class="fa-item"><strong>Game</strong> — permanent campaign/setting aspects</div>
+        </div>
+      </div>
+      <div class="bspc"></div>
+    </div>
+    <!-- GUIDE -->
+    <div class="pnl" id="pnl-guide">
+      <div class="slbl" style="margin-top:3px">Fate Core Quick Reference</div>
+      <div id="guideC"></div>
+      <div class="bspc"></div>
+    </div>
+  </div>
+  <div class="bbar" id="bbar">
+    <button class="rbtn" onclick="resetScene()">↺ New Scene</button>
+    <button class="rbtn" onclick="confirmReset()">↺ New Session</button>
+  </div>
+  <div class="cfm" id="cfm">
+    <div class="cfm-t" id="cfmT"></div>
+    <div class="cfm-row"><button class="cfm-n" onclick="cancelCfm()">Cancel</button><button class="cfm-y" id="cfmY">Confirm</button></div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
