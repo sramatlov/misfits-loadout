@@ -30,8 +30,9 @@ button,input{font:inherit}
 button{appearance:none;cursor:pointer}
 
 /* ─── ANIMATIONS ─── */
-@keyframes breathe{0%,100%{text-shadow:0 0 8px rgba(255,255,255,.15)}50%{text-shadow:0 0 22px rgba(255,255,255,.5),0 0 44px rgba(255,255,255,.08)}}
-@keyframes breatheLogo{0%,100%{filter:drop-shadow(0 0 4px rgba(255,255,255,.2))}50%{filter:drop-shadow(0 0 14px rgba(255,255,255,.6)) drop-shadow(0 0 28px rgba(255,255,255,.15))}}
+@keyframes breathe{0%,100%{text-shadow:0 0 8px var(--accent-dim)}50%{text-shadow:0 0 22px var(--accent), 0 0 44px var(--accent-dim)}}
+@keyframes breatheLogo{0%,100%{filter:drop-shadow(0 0 4px var(--accent-dim))}50%{filter:drop-shadow(0 0 14px var(--accent)) drop-shadow(0 0 28px var(--accent-dim))}}
+@keyframes logoShake{0%,89%,100%{transform:translate(0,0) rotate(0deg)}90%{transform:translate(-2px,1px) rotate(-.4deg)}92%{transform:translate(2px,-1px) rotate(.3deg)}94%{transform:translate(-1px,2px) rotate(-.2deg)}96%{transform:translate(1px,-1px) rotate(.2deg)}98%{transform:translate(0,1px) rotate(0deg)}}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
@@ -48,7 +49,7 @@ button{appearance:none;cursor:pointer}
 /* ─── LOGIN ─── */
 #login{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;background:var(--bg);position:relative;overflow:hidden}
 #login canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
-.l-logo{width:100px;max-width:35vw;position:relative;z-index:1;color:var(--accent);animation:breatheLogo 4s ease-in-out infinite;margin-bottom:10px}
+.l-logo{width:100px;max-width:35vw;position:relative;z-index:1;color:var(--accent);animation:breatheLogo 4s ease-in-out infinite, logoShake 8s ease-in-out infinite;margin-bottom:10px}
 .l-logo svg{width:100%;height:auto;display:block}
 .l-title{font-family:Rajdhani,sans-serif;font-weight:700;font-size:28px;letter-spacing:4px;color:var(--accent);text-transform:uppercase;text-align:center;line-height:1.1;position:relative;z-index:1;animation:breathe 4s ease-in-out infinite}
 .l-sub{font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;text-align:center;margin:10px 0 36px;position:relative;z-index:1}
