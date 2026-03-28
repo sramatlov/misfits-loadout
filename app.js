@@ -53,13 +53,14 @@ function animPulse(el, cls) {
 }
 
 // ─── LOGIN + SUMMARY ───
-const CHAR_COLORS = { cap: '#c45838', howard: '#c4a038', thowra: '#38a8c4' };
+const CHAR_COLORS  = { cap: '#c45838', howard: '#c4a038', thowra: '#38a8c4' };
+const CHAR_DELAYS  = { cap: '-1.3s',   howard: '-2.7s',   thowra: '-0.6s'   };
 
 function rLogin() {
   const g = $('loginGrid'); g.innerHTML = '';
   Object.entries(CHARS).forEach(([k, c]) => {
     const d = document.createElement('div'); d.className = 'l-card';
-    d.innerHTML = `<div class="l-icon l-portrait" style="color:${CHAR_COLORS[k]}">${PORTRAITS[k]}</div><div class="l-info"><div class="l-name">${c.displayName}</div><div class="l-flavor">${c.flavor}</div></div><button class="l-ibtn" data-k="${k}">ⓘ</button>`;
+    d.innerHTML = `<div class="l-icon l-portrait" style="color:${CHAR_COLORS[k]};animation-delay:${CHAR_DELAYS[k]}">${PORTRAITS[k]}</div><div class="l-info"><div class="l-name">${c.displayName}</div><div class="l-flavor">${c.flavor}</div></div><button class="l-ibtn" data-k="${k}">ⓘ</button>`;
     d.onclick = (e) => { if (e.target.closest('.l-ibtn')) return; selectChar(k); };
     d.querySelector('.l-ibtn').onclick = (e) => { e.stopPropagation(); showSummary(k); };
     g.appendChild(d);

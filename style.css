@@ -32,6 +32,7 @@ button{appearance:none;cursor:pointer}
 /* ─── ANIMATIONS ─── */
 @keyframes breathe{0%,100%{text-shadow:0 0 4px var(--accent-dim)}50%{text-shadow:0 0 10px var(--accent), 0 0 20px var(--accent-dim)}}
 @keyframes breatheLogo{0%,100%{filter:drop-shadow(0 0 2px var(--accent-dim))}50%{filter:drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 12px var(--accent-dim))}}
+@keyframes portraitGlow{0%,100%{opacity:0.75}50%{opacity:1}}
 @keyframes logoShake{0%,87%,100%{transform:translate(0,0)}87.3%{transform:translate(-1px,0)}87.6%{transform:translate(0,0)}93%{transform:translate(1px,0)}93.3%{transform:translate(0,0)}}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -59,7 +60,7 @@ button{appearance:none;cursor:pointer}
 .l-card:active{transform:scale(.98);background:var(--raised)}
 .l-icon{width:46px;height:46px;flex-shrink:0}
 .l-icon svg{width:100%;height:100%}
-.l-portrait{width:46px;height:46px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.l-portrait{width:46px;height:46px;flex-shrink:0;display:flex;align-items:center;justify-content:center;animation:portraitGlow 4s ease-in-out infinite}
 .l-portrait svg{width:100%;height:100%;object-fit:contain}
 .hdr-portrait{width:40px;height:40px;flex-shrink:0;opacity:0.85;color:var(--accent)}
 .hdr-portrait svg{width:100%;height:100%}
