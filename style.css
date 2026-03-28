@@ -203,7 +203,7 @@ button{appearance:none;cursor:pointer}
 .vtog-b{flex:1;padding:10px;text-align:center;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);background:var(--inset);cursor:pointer;border:none;transition:all .15s}
 .vtog-b.on{background:var(--accent-dim);color:var(--accent)}
 .sk-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.sk-gh{grid-column:1/-1;font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;padding:12px 10px 4px;margin-top:4px;background:var(--inset);border-left:3px solid var(--accent);border-radius:var(--r) 0 0 var(--r);display:block}
+.sk-gh{grid-column:1/-1;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:8px 8px 3px;margin-top:4px;display:block}
 .sk-gh::after{display:none}
 .sk{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;cursor:pointer;transition:all .2s}
 .sk:active{transform:scale(.97)}
@@ -212,7 +212,7 @@ button{appearance:none;cursor:pointer}
 .sk-nm{font-family:Rajdhani,sans-serif;font-size:15px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text);line-height:1.1}
 .sk-ann{font-size:11px;color:var(--muted);margin-top:2px;text-transform:none;font-style:italic}
 .sk-ll{font-size:11px;color:var(--muted);margin-top:1px}
-.sk-rt{font-family:Rajdhani,sans-serif;font-size:32px;font-weight:700;line-height:1}
+.sk-rt{font-family:Rajdhani,sans-serif;font-size:28px;font-weight:700;line-height:1}
 .sk-rt.hi{color:var(--accent)}.sk-rt.md{color:var(--adv)}.sk-rt.lo{color:var(--muted)}
 .sk-det{display:none;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
 .sk.exp .sk-det{display:block}
@@ -326,7 +326,7 @@ button{appearance:none;cursor:pointer}
 
 .bspc{height:70px}
 @media(max-width:399px){
-  .sk-grid{grid-template-columns:1fr}
+  .sk-grid{grid-template-columns:1fr 1fr}
   .sk.exp{grid-column:1}
   .act-grid{gap:6px}
   .act-btn{font-size:13px;padding:11px 4px}
