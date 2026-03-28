@@ -106,6 +106,7 @@ function renderAll() {
   // Stress icons
   const lb = $('lblBones'); if (lb) lb.innerHTML = BONES_ICON;
   const lbr = $('lblBrain'); if (lbr) lbr.innerHTML = BRAIN_ICON;
+  const lom = $('lblOmega'); if (lom) lom.innerHTML = OMEGA_ICON;
   // Portrait in header — tapping it goes back to login
   const p = $('hPortrait');
   if (p) { p.innerHTML = PORTRAITS[CK]; p.style.color = 'var(--accent)'; p.onclick = switchChar; }
@@ -130,17 +131,16 @@ function rFP() {
   r.appendChild(p);
 }
 
-function rStress() { rTrack('physB', S.stress.phys, CHARS[CK].stress.phys, 'lblBones'); rTrack('mentB', S.stress.ment, CHARS[CK].stress.ment, 'lblBrain'); }
-function rTrack(id, arr, cfg, iconId) {
+function rStress() { rTrack('physB', S.stress.phys, CHARS[CK].stress.phys, 'lblBones', true); rTrack('mentB', S.stress.ment, CHARS[CK].stress.ment, 'lblBrain', false); }
+function rTrack(id, arr, cfg, iconId, isPhys) {
   const w = $(id); w.innerHTML = '';
   const base = cfg.boxes - cfg.bonus;
   const allFull = arr.every(v => v);
-  // Update icon state
   const icon = $(iconId);
   if (icon) {
     if (allFull) {
       icon.classList.remove('maxed');
-      void icon.offsetWidth; // force reflow to restart animation
+      void icon.offsetWidth;
       icon.classList.add('maxed');
     } else {
       icon.classList.remove('maxed');
@@ -148,7 +148,7 @@ function rTrack(id, arr, cfg, iconId) {
   }
   arr.forEach((v, i) => {
     const b = document.createElement('div');
-    b.className = 'str-box' + (v ? ' on' : '') + (i >= base ? ' bonus' : '');
+    b.className = 'str-box' + (isPhys ? ' phys' : '') + (v ? ' on' : '') + (i >= base ? ' bonus' : '');
     b.textContent = i + 1;
     b.onclick = () => {
       arr[i] = !arr[i]; saveLS(); rStress(); addLog(`${id.includes('phys') ? 'Physical' : 'Mental'} stress ${i+1} ${arr[i] ? 'marked' : 'cleared'}`);
@@ -163,8 +163,17 @@ function rCorr() {
   if (!S.corruption) { $('corrBar').style.display = 'none'; return; }
   $('corrBar').style.display = '';
   const w = $('corrB'); w.innerHTML = '';
+  const allFull = S.corruption.every(v => v);
+  const icon = $('lblOmega');
+  if (icon) {
+    icon.classList.remove('maxed');
+    void icon.offsetWidth;
+    if (allFull) icon.classList.add('maxed');
+  }
   S.corruption.forEach((v, i) => {
-    const b = document.createElement('div'); b.className = 'corr-box' + (v ? ' on' : '');
+    const b = document.createElement('div');
+    b.className = 'corr-box' + (v ? ' on' : '');
+    b.textContent = i + 1;
     b.onclick = () => {
       S.corruption[i] = !S.corruption[i]; saveLS(); rCorr(); addLog(`Corruption ${i+1} ${S.corruption[i] ? 'marked' : 'cleared'}`);
       if (S.corruption[i]) { const boxes = $('corrB').querySelectorAll('.corr-box'); if (boxes[i]) animPulse(boxes[i], 'anim-pulse-corr'); }
