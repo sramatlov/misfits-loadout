@@ -96,7 +96,7 @@ function applyCharacterTheme(k) {
 }
 
 function selectChar(k)  { initS(k); applyCharacterTheme(k); $('login').classList.add('off'); $('app').classList.add('on'); renderAll(); }
-function switchChar()    { showCfm('Log out? Session progress is saved.', () => { $('app').classList.remove('on'); $('login').classList.remove('off'); switchTab('moves'); }); }
+function switchChar()    { showCfm("Abandoning post?", "Harry's running on autopilot. Don't blame us if he lands in a sun.", () => { $('app').classList.remove('on'); $('login').classList.remove('off'); switchTab('moves'); }); }
 
 // ─── RENDER ALL ───
 function renderAll() {
@@ -354,8 +354,8 @@ function rGuide() {
 // ─── COLLAPSIBLE / RESET / CONFIRM ───
 function togColl(id)    { $(id).classList.toggle('open'); }
 function resetScene()   { const c = CHARS[CK]; c.stunts.forEach(s => S.moves[s.id] = false); saveLS(); rMoves(); addLog('Scene reset'); }
-function confirmReset() { showCfm('Reset everything for a new session?', () => { const c = CHARS[CK]; S.fp = c.refresh; S.stress.phys.fill(false); S.stress.ment.fill(false); Object.keys(S.moves).forEach(k => S.moves[k] = false); Object.keys(S.cons).forEach(k => S.cons[k] = null); Object.keys(S.fi).forEach(k => S.fi[k] = 0); if (S.corruption) S.corruption.fill(false); S.log = []; saveLS(); renderAll(); addLog('New session started'); }); }
-function showCfm(t, fn) { $('cfmT').textContent = t; $('cfmY').onclick = () => { $('cfm').classList.remove('on'); fn(); }; $('cfm').classList.add('on'); }
+function confirmReset() { showCfm("Start a new session?", "All stress, fate points and consequences reset. The debt collectors stay.", () => { const c = CHARS[CK]; S.fp = c.refresh; S.stress.phys.fill(false); S.stress.ment.fill(false); Object.keys(S.moves).forEach(k => S.moves[k] = false); Object.keys(S.cons).forEach(k => S.cons[k] = null); Object.keys(S.fi).forEach(k => S.fi[k] = 0); if (S.corruption) S.corruption.fill(false); S.log = []; saveLS(); renderAll(); addLog('New session started'); }); }
+function showCfm(t, sub, fn) { $('cfmT').textContent = t; $('cfmSub').textContent = sub || ''; $('cfmY').onclick = () => { $('cfm').classList.remove('on'); fn(); }; $('cfm').classList.add('on'); }
 function cancelCfm()    { $('cfm').classList.remove('on'); }
 
 // ─── GM VIEW ───

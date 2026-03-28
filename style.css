@@ -49,15 +49,16 @@ button{appearance:none;cursor:pointer}
 
 /* ─── LOGIN ─── */
 #login{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;background:var(--bg);position:relative;overflow:hidden}
-#login canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
-.l-logo{width:100px;max-width:35vw;position:relative;z-index:1;color:var(--accent);animation:breatheLogo 4s ease-in-out infinite, logoShake 8s ease-in-out infinite;margin-bottom:10px}
+#login::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%, rgba(196,88,56,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 30%, rgba(56,168,196,0.12) 0%, transparent 45%), radial-gradient(ellipse at 60% 80%, rgba(196,160,56,0.10) 0%, transparent 40%);pointer-events:none;z-index:0}
+#login canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.l-logo{width:100px;max-width:35vw;position:relative;z-index:2;color:var(--accent);animation:breatheLogo 4s ease-in-out infinite, logoShake 8s ease-in-out infinite;margin-bottom:10px}
 .l-logo svg{width:100%;height:auto;display:block}
-.l-title{font-family:Rajdhani,sans-serif;font-weight:700;font-size:28px;letter-spacing:4px;color:var(--accent);text-transform:uppercase;text-align:center;line-height:1.1;position:relative;z-index:1;animation:breathe 4s ease-in-out infinite}
-.l-sub{font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;text-align:center;margin:10px 0 36px;position:relative;z-index:1}
-.l-grid{display:flex;flex-direction:column;gap:10px;width:100%;max-width:380px;position:relative;z-index:1}
-.l-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--r);padding:16px 16px 16px 14px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.l-card::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(196,154,56,.04) 50%,transparent 100%);background-size:200% 100%;animation:shimmer 6s ease-in-out infinite;pointer-events:none}
-.l-card:active{transform:scale(.98);background:var(--raised)}
+.l-title{font-family:Rajdhani,sans-serif;font-weight:700;font-size:28px;letter-spacing:4px;color:var(--accent);text-transform:uppercase;text-align:center;line-height:1.1;position:relative;z-index:2;animation:breathe 4s ease-in-out infinite}
+.l-sub{font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;text-align:center;margin:10px 0 36px;position:relative;z-index:2}
+.l-grid{display:flex;flex-direction:column;gap:10px;width:100%;max-width:380px;position:relative;z-index:2}
+.l-card{background:rgba(8,11,16,0.72);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,0.10);border-left:4px solid var(--accent);border-radius:12px;padding:16px 16px 16px 14px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.07)}
+.l-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.07) 0%,transparent 60%);pointer-events:none;border-radius:inherit}
+.l-card:active{transform:scale(.98);background:rgba(255,255,255,0.09)}
 .l-icon{width:46px;height:46px;flex-shrink:0}
 .l-icon svg{width:100%;height:100%}
 .l-portrait{width:46px;height:46px;flex-shrink:0;display:flex;align-items:center;justify-content:center;animation:portraitGlow 4s ease-in-out infinite}
@@ -308,9 +309,11 @@ button{appearance:none;cursor:pointer}
 .rbtn{flex:1;background:var(--inset);border:2px solid var(--border-heavy);color:var(--muted);padding:12px;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:var(--r);transition:all .15s;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
 .rbtn:active{background:var(--raised);color:var(--text);border-color:var(--accent)}
 .rbtn+.rbtn{border-color:rgba(199,85,58,.25)}
-.cfm{display:none;position:fixed;bottom:0;left:0;right:0;padding:14px;padding-bottom:max(14px,env(safe-area-inset-bottom));background:var(--raised);border-top:3px solid var(--danger);z-index:200;text-align:center}
-.cfm.on{display:block}
-.cfm-t{font-size:15px;color:var(--text);margin-bottom:12px}
+.cfm{display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;background:rgba(8,11,16,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:24px}
+.cfm.on{display:flex}
+.cfm-box{background:var(--raised);border:1px solid var(--border-heavy);border-top:3px solid var(--danger);border-radius:12px;padding:28px 24px 20px;max-width:320px;width:100%;text-align:center}
+.cfm-t{font-size:16px;color:var(--text);margin-bottom:6px;line-height:1.5}
+.cfm-sub{font-size:12px;color:var(--muted);margin-bottom:20px;letter-spacing:.5px}
 .cfm-row{display:flex;gap:10px}
 .cfm-y{flex:1;padding:12px;background:var(--danger);color:#fff;border:none;border-radius:var(--r);font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
 .cfm-n{flex:1;padding:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:var(--r);font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
@@ -318,7 +321,7 @@ button{appearance:none;cursor:pointer}
 /* ─── GM VIEW ─── */
 #gm{display:none;min-height:100dvh}
 #gm.on{display:block}
-.gm-entry{margin-top:20px;text-align:center;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:12px;border:1px solid var(--border);border-radius:var(--r);max-width:360px;width:100%;transition:all .15s;position:relative;z-index:1}
+.gm-entry{margin-top:20px;text-align:center;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:12px;border:1px solid var(--border);border-radius:var(--r);max-width:360px;width:100%;transition:all .15s;position:relative;z-index:2}
 .gm-entry:active{color:var(--accent);border-color:var(--accent)}
 .gm-icon{font-size:16px}
 .gm-hdr{background:var(--header-bg);border-bottom:3px solid var(--muted);padding:12px 14px;position:sticky;top:0;z-index:100;display:flex;align-items:center;box-shadow:0 4px 16px rgba(0,0,0,.4)}
