@@ -103,6 +103,9 @@ function renderAll() {
   const c = CHARS[CK];
   $('hName').textContent = c.displayName;
   $('hSub').textContent = c.sub;
+  // Stress icons
+  const lb = $('lblBones'); if (lb) lb.innerHTML = BONES_ICON;
+  const lbr = $('lblBrain'); if (lbr) lbr.innerHTML = BRAIN_ICON;
   // Portrait in header — tapping it goes back to login
   const p = $('hPortrait');
   if (p) { p.innerHTML = PORTRAITS[CK]; p.style.color = 'var(--accent)'; p.onclick = switchChar; }
@@ -132,9 +135,10 @@ function rStress() { rTrack('physB', S.stress.phys, CHARS[CK].stress.phys); rTra
 function rTrack(id, arr, cfg) {
   const w = $(id); w.innerHTML = '';
   const base = cfg.boxes - cfg.bonus;
+  const allFull = arr.every(v => v);
   arr.forEach((v, i) => {
     const b = document.createElement('div');
-    b.className = 'str-box' + (v ? ' on' : '') + (i >= base ? ' bonus' : '');
+    b.className = 'str-box' + (v ? ' on' : '') + (i >= base ? ' bonus' : '') + (allFull ? ' maxed' : '');
     b.textContent = i + 1;
     b.onclick = () => {
       arr[i] = !arr[i]; saveLS(); rStress(); addLog(`${id.includes('phys') ? 'Physical' : 'Mental'} stress ${i+1} ${arr[i] ? 'marked' : 'cleared'}`);
