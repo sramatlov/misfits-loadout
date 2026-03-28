@@ -53,11 +53,13 @@ function animPulse(el, cls) {
 }
 
 // ─── LOGIN + SUMMARY ───
+const CHAR_COLORS = { cap: '#b03020', howard: '#b07820', thowra: '#2840a8' };
+
 function rLogin() {
   const g = $('loginGrid'); g.innerHTML = '';
   Object.entries(CHARS).forEach(([k, c]) => {
     const d = document.createElement('div'); d.className = 'l-card';
-    d.innerHTML = `<div class="l-icon l-portrait" style="color:var(--accent)">${PORTRAITS[k]}</div><div class="l-info"><div class="l-name">${c.displayName}</div><div class="l-flavor">${c.flavor}</div></div><button class="l-ibtn" data-k="${k}">ⓘ</button>`;
+    d.innerHTML = `<div class="l-icon l-portrait" style="color:${CHAR_COLORS[k]}">${PORTRAITS[k]}</div><div class="l-info"><div class="l-name">${c.displayName}</div><div class="l-flavor">${c.flavor}</div></div><button class="l-ibtn" data-k="${k}">ⓘ</button>`;
     d.onclick = (e) => { if (e.target.closest('.l-ibtn')) return; selectChar(k); };
     d.querySelector('.l-ibtn').onclick = (e) => { e.stopPropagation(); showSummary(k); };
     g.appendChild(d);
@@ -82,9 +84,9 @@ function closeSummary() { $('summary').classList.remove('on'); }
 
 function applyCharacterTheme(k) {
   const themes = {
-    cap:    { accent: '#c49a38', dim: 'rgba(196,154,56,0.10)',  mid: 'rgba(196,154,56,0.20)'  },
-    howard: { accent: '#4a9eb8', dim: 'rgba(74,158,184,0.10)',  mid: 'rgba(74,158,184,0.20)'  },
-    thowra: { accent: '#8a6ab8', dim: 'rgba(138,106,184,0.10)', mid: 'rgba(138,106,184,0.20)' }
+    cap:    { accent: '#b03020', dim: 'rgba(176,48,32,0.10)',   mid: 'rgba(176,48,32,0.20)'   },
+    howard: { accent: '#b07820', dim: 'rgba(176,120,32,0.10)',  mid: 'rgba(176,120,32,0.20)'  },
+    thowra: { accent: '#2840a8', dim: 'rgba(40,64,168,0.10)',   mid: 'rgba(40,64,168,0.20)'   }
   };
   const t = themes[k], r = document.documentElement.style;
   r.setProperty('--accent', t.accent);

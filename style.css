@@ -61,7 +61,7 @@ button{appearance:none;cursor:pointer}
 .l-icon svg{width:100%;height:100%}
 .l-portrait{width:46px;height:46px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .l-portrait svg{width:100%;height:100%;object-fit:contain}
-.hdr-portrait{width:36px;height:36px;flex-shrink:0;opacity:0.8;color:var(--accent)}
+.hdr-portrait{width:40px;height:40px;flex-shrink:0;opacity:0.85;color:var(--accent)}
 .hdr-portrait svg{width:100%;height:100%}
 .l-info{flex:1;min-width:0}
 .l-name{font-family:Rajdhani,sans-serif;font-size:20px;font-weight:700;color:var(--bright);text-transform:uppercase;letter-spacing:1px;line-height:1.1}
@@ -93,8 +93,9 @@ button{appearance:none;cursor:pointer}
 
 /* ─── HEADER ─── */
 .hdr{background:var(--header-bg);border-bottom:3px solid var(--accent);padding:12px 14px 10px;position:sticky;top:0;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,.4)}
-.hdr-r1{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.hdr-id{flex:1;min-width:0}
+.hdr-r1{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.hdr-id{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.hdr-id-text{flex:1;min-width:0}
 .hdr-nm{font-family:Rajdhani,sans-serif;font-size:24px;font-weight:700;color:var(--accent);letter-spacing:2px;text-transform:uppercase;line-height:1;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hdr-nm::before{content:'◂ ';font-size:13px;color:var(--muted)}
 .hdr-sub{font-size:11px;color:var(--muted);letter-spacing:.8px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
