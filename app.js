@@ -57,7 +57,7 @@ function rLogin() {
   const g = $('loginGrid'); g.innerHTML = '';
   Object.entries(CHARS).forEach(([k, c]) => {
     const d = document.createElement('div'); d.className = 'l-card';
-    d.innerHTML = `<div class="l-icon">${ICONS[k]}</div><div class="l-info"><div class="l-name">${c.displayName}</div><div class="l-flavor">${c.flavor}</div></div><button class="l-ibtn" data-k="${k}">ⓘ</button>`;
+    d.innerHTML = `<div class="l-icon l-portrait"><img src="${k}_portrait.svg" alt="${c.displayName}"></div><div class="l-info"><div class="l-name">${c.displayName}</div><div class="l-flavor">${c.flavor}</div></div><button class="l-ibtn" data-k="${k}">ⓘ</button>`;
     d.onclick = (e) => { if (e.target.closest('.l-ibtn')) return; selectChar(k); };
     d.querySelector('.l-ibtn').onclick = (e) => { e.stopPropagation(); showSummary(k); };
     g.appendChild(d);
@@ -100,6 +100,9 @@ function renderAll() {
   const c = CHARS[CK];
   $('hName').textContent = c.displayName; $('hName').onclick = switchChar;
   $('hSub').textContent = c.sub;
+  // Portrait in header
+  const p = $('hPortrait');
+  if (p) { p.src = `${CK}_portrait.svg`; p.style.filter = 'brightness(0) invert(1)'; }
   rFP(); rStress(); rCorr(); rTabs(); rAct(); rMoves(); rCons(); rLog(); rSkills(); rAspects(); rGuide();
 }
 
