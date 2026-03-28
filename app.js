@@ -93,7 +93,7 @@ function applyCharacterTheme(k) {
 }
 
 function selectChar(k)  { initS(k); applyCharacterTheme(k); $('login').classList.add('off'); $('app').classList.add('on'); renderAll(); }
-function switchChar()    { showCfm('Log out? Session progress is saved.', () => { $('app').classList.remove('on'); $('login').classList.remove('off'); switchTab('moves'); document.documentElement.style.setProperty('--accent','#c49a38'); document.documentElement.style.setProperty('--accent-dim','rgba(196,154,56,0.10)'); document.documentElement.style.setProperty('--accent-mid','rgba(196,154,56,0.20)'); }); }
+function switchChar()    { showCfm('Log out? Session progress is saved.', () => { $('app').classList.remove('on'); $('login').classList.remove('off'); switchTab('moves'); }); }
 
 // ─── RENDER ALL ───
 function renderAll() {
@@ -442,17 +442,113 @@ function rGMRules() {
   recRules.forEach(r => { const d = document.createElement('div'); d.className = 'gm-rule'; d.innerHTML = r; w.appendChild(d); });
 }
 
-// ─── STAR FIELD ───
+// ─── STAR FIELD + SHIP FLYBY ───
 function initStars() {
   const c = $('stars'), ctx = c.getContext('2d');
   let w, h, stars = [];
-  function resize() { w = c.width = c.offsetWidth; h = c.height = c.offsetHeight; stars = []; for (let i = 0; i < 80; i++) stars.push({x:Math.random()*w, y:Math.random()*h, r:Math.random()*1.2+.3, s:Math.random()*.15+.03, a:Math.random()}); }
-  function draw() {
-    ctx.clearRect(0,0,w,h);
-    stars.forEach(s => { s.y -= s.s; s.a += .003; if (s.y < -2) { s.y = h+2; s.x = Math.random()*w; } const alpha = .15 + Math.sin(s.a)*.12; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fillStyle = `rgba(200,210,220,${alpha})`; ctx.fill(); });
+
+  // Ship state
+  const ship = { active: false, x: 0, y: 0, size: 1, speed: 0, opacity: 0 };
+  let nextShip = 15 + Math.random() * 8; // seconds until first flyby
+
+  function resize() {
+    w = c.width = c.offsetWidth;
+    h = c.height = c.offsetHeight;
+    stars = [];
+    for (let i = 0; i < 100; i++) stars.push({
+      x: Math.random()*w, y: Math.random()*h,
+      r: Math.random()*1.4+.3,
+      s: Math.random()*.2+.03,
+      a: Math.random(),
+      twinkle: Math.random() * Math.PI * 2
+    });
+  }
+
+  // Draw a small freighter silhouette at (x, y) with given size + opacity
+  function drawShip(x, y, size, opacity) {
+    ctx.save();
+    ctx.globalAlpha = opacity;
+    ctx.translate(x, y);
+
+    // Main hull
+    ctx.fillStyle = 'rgba(180,195,210,1)';
+    ctx.beginPath();
+    ctx.moveTo(size * 20, 0);
+    ctx.lineTo(size * -10, size * -4);
+    ctx.lineTo(size * -18, size * -3);
+    ctx.lineTo(size * -18, size * 3);
+    ctx.lineTo(size * -10, size * 4);
+    ctx.closePath();
+    ctx.fill();
+
+    // Cockpit bump
+    ctx.beginPath();
+    ctx.moveTo(size * 8, 0);
+    ctx.lineTo(size * 4, size * -5);
+    ctx.lineTo(size * -2, size * -5);
+    ctx.lineTo(size * -2, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    // Engine glow
+    const grd = ctx.createRadialGradient(size * -18, 0, 0, size * -18, 0, size * 7);
+    grd.addColorStop(0, 'rgba(100,160,255,0.9)');
+    grd.addColorStop(0.4, 'rgba(80,120,220,0.4)');
+    grd.addColorStop(1, 'rgba(60,80,180,0)');
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.ellipse(size * -18, 0, size * 7, size * 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  let last = 0;
+  function draw(ts) {
+    const dt = last ? (ts - last) / 1000 : 0;
+    last = ts;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Stars — slightly brighter
+    stars.forEach(s => {
+      s.y -= s.s;
+      s.twinkle += .004;
+      if (s.y < -2) { s.y = h + 2; s.x = Math.random() * w; }
+      const alpha = .25 + Math.sin(s.twinkle) * .18;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(210,220,235,${alpha})`;
+      ctx.fill();
+    });
+
+    // Ship flyby
+    nextShip -= dt;
+    if (nextShip <= 0 && !ship.active) {
+      ship.active = true;
+      ship.x = -60;
+      ship.y = h * (0.15 + Math.random() * 0.65);
+      ship.size = 0.7 + Math.random() * 0.6;
+      ship.speed = w / (4 + Math.random() * 3); // px/sec — crosses in ~4-7s
+      ship.opacity = 0;
+      nextShip = 15 + Math.random() * 8;
+    }
+    if (ship.active) {
+      ship.x += ship.speed * dt;
+      // Fade in at start, fade out near end
+      const progress = ship.x / (w + 60);
+      ship.opacity = progress < 0.1 ? progress * 10 * 0.55
+                   : progress > 0.85 ? (1 - progress) / 0.15 * 0.55
+                   : 0.55;
+      drawShip(ship.x, ship.y, ship.size, ship.opacity);
+      if (ship.x > w + 60) ship.active = false;
+    }
+
     requestAnimationFrame(draw);
   }
-  resize(); draw();
+
+  resize();
+  requestAnimationFrame(draw);
   window.addEventListener('resize', resize);
 }
 
