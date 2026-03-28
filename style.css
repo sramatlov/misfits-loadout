@@ -118,7 +118,7 @@ button{appearance:none;cursor:pointer}
 .tab.on{color:var(--accent);background:var(--surface);border-bottom-color:var(--accent);box-shadow:inset 0 1px 0 var(--border)}
 
 /* ─── CONTENT ─── */
-.content{padding:14px;padding-bottom:76px;background:var(--bg)}
+.content{padding:14px;background:var(--bg)}
 .pnl{display:none}.pnl.on{display:block}
 .slbl{font-family:Rajdhani,sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:20px 0 10px;display:flex;align-items:center;gap:8px}
 .slbl::after{content:'';flex:1;height:1px;background:var(--border-light)}
@@ -276,8 +276,8 @@ button{appearance:none;cursor:pointer}
 .log-body div{padding:2px 0}
 .log-body div::before{content:'> ';color:var(--border-heavy)}
 
-/* ─── BOTTOM BAR ─── */
-.bbar{position:fixed;bottom:0;left:0;right:0;padding:10px 14px;padding-bottom:max(10px,env(safe-area-inset-bottom));background:var(--header-bg);border-top:3px solid var(--border-heavy);display:flex;gap:10px;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.4)}
+/* ─── RESET ROW (inline in Moves tab) ─── */
+.reset-row{display:flex;gap:10px;margin-top:16px}
 .rbtn{flex:1;background:var(--inset);border:2px solid var(--border-heavy);color:var(--muted);padding:12px;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:var(--r);transition:all .15s;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
 .rbtn:active{background:var(--raised);color:var(--text);border-color:var(--accent)}
 .rbtn+.rbtn{border-color:rgba(199,85,58,.25)}
