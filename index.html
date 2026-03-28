@@ -21,6 +21,10 @@
   <div class="gm-entry" onclick="openGM()">
     <span class="gm-icon">⚙</span> GM Reference
   </div>
+  <div class="sync-row">
+    <div id="syncStatus" class="sync-status"></div>
+    <button class="sync-btn" onclick="manualSync()">↻ Sync sheet</button>
+  </div>
 </div>
 
 <!-- ═══ SUMMARY OVERLAY ═══ -->
@@ -161,6 +165,7 @@
 </div>
 
 <script src="data.js"></script>
+<script src="sheets.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

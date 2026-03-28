@@ -763,3 +763,13 @@ function initStars() {
 // ─── BOOT ───
 rLogin();
 initStars();
+
+// Auto-sync on load
+updateSyncStatus('syncing');
+syncFromSheet(true).then(() => rLogin());
+
+// Manual sync from login screen
+function manualSync() {
+  updateSyncStatus('syncing');
+  syncFromSheet(true).then(ok => { if (ok) rLogin(); });
+}

@@ -332,6 +332,10 @@ button{appearance:none;cursor:pointer}
 #gm.on{display:block}
 .gm-entry{margin-top:20px;text-align:center;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:12px;border-radius:12px;max-width:380px;width:100%;transition:all .15s;position:relative;z-index:2;background:rgba(255,255,255,0.04);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%);border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 16px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.05)}
 .gm-entry:active{color:var(--accent);border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.07)}
+.sync-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;width:100%;max-width:380px;padding:0 4px}
+.sync-status{font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;color:var(--muted);flex:1}
+.sync-btn{font-family:Rajdhani,sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:transparent;border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:5px 12px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.sync-btn:active{color:var(--accent);border-color:var(--accent)}
 .gm-icon{font-size:16px}
 .gm-hdr{background:var(--header-bg);border-bottom:3px solid var(--muted);padding:12px 14px;position:sticky;top:0;z-index:100;display:flex;align-items:center;box-shadow:0 4px 16px rgba(0,0,0,.4)}
 .gm-hdr-left{display:flex;align-items:baseline;gap:12px}
