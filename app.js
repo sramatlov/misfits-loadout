@@ -115,6 +115,7 @@ function rFP() {
   const ref = CHARS[CK].refresh, count = Math.max(S.fp, ref);
   for (let i = 0; i < count; i++) {
     const d = document.createElement('div'); d.className = 'fp-dot' + (i >= S.fp ? ' empty' : '');
+    d.innerHTML = FP_ICON;
     d.onclick = () => {
       const was = S.fp; S.fp = i < S.fp ? i : i + 1; saveLS(); rFP(); addLog(`Fate Points: ${S.fp}`);
       if (S.fp < was) { const dots = $('fpRow').querySelectorAll('.fp-dot'); if (dots[i]) animPulse(dots[i], 'anim-pulse-gold'); }
