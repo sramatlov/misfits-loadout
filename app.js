@@ -60,7 +60,7 @@ function rLogin() {
   const g = $('loginGrid'); g.innerHTML = '';
   Object.entries(CHARS).forEach(([k, c]) => {
     const d = document.createElement('div'); d.className = 'l-card';
-    d.innerHTML = `<div class="l-icon l-portrait" style="color:${CHAR_COLORS[k]};animation-delay:${CHAR_DELAYS[k]}">${PORTRAITS[k]}</div><div class="l-info"><div class="l-name">${c.displayName}</div><div class="l-flavor">${c.flavor}</div></div><button class="l-ibtn" data-k="${k}">ⓘ</button>`;
+    d.innerHTML = `<div class="l-icon l-portrait" style="color:${CHAR_COLORS[k]};animation-delay:${CHAR_DELAYS[k]}">${PORTRAITS[k]}</div><div class="l-info"><div class="l-name">${c.displayName}</div><div class="l-flavor">${c.flavor}</div></div><button class="l-ibtn" style="border-color:${CHAR_COLORS[k]}" data-k="${k}"><div class="l-ibtn-inner" style="color:${CHAR_COLORS[k]};background:${CHAR_COLORS[k]}22">i</div></button>`;
     d.onclick = (e) => { if (e.target.closest('.l-ibtn')) return; selectChar(k); };
     d.querySelector('.l-ibtn').onclick = (e) => { e.stopPropagation(); showSummary(k); };
     g.appendChild(d);
