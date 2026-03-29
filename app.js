@@ -7,7 +7,7 @@ let CK = null, S = {};
 const LS_KEY = 'misfits-v9';
 
 function loadLS() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch { return {}; } }
-function saveLS() { const d = loadLS(); d[CK] = S; localStorage.setItem(LS_KEY, JSON.stringify(d)); }
+function saveLS() { if (!CK) return; const d = loadLS(); d[CK] = S; localStorage.setItem(LS_KEY, JSON.stringify(d)); }
 
 function initS(k) {
   CK = k;
@@ -87,7 +87,9 @@ const CHAR_COLORS  = { cap: '#c45838', howard: '#c4a038', thowra: '#38a8c4' };
 const CHAR_DELAYS  = { cap: '-1.3s',   howard: '-2.7s',   thowra: '-0.6s'   };
 
 function rLogin() {
-  const g = $('loginGrid'); g.innerHTML = '';
+  const g = $('loginGrid');
+  if (!g) return;
+  g.innerHTML = '';
   Object.entries(CHARS).forEach(([k, c]) => {
     const d = document.createElement('div'); d.className = 'l-card';
     d.innerHTML = `<div class="l-icon l-portrait" style="color:${CHAR_COLORS[k]};animation-delay:${CHAR_DELAYS[k]}">${PORTRAITS[k]}</div><div class="l-info"><div class="l-name">${c.displayName}</div><div class="l-flavor">${c.flavor}</div></div><button class="l-ibtn" style="border-color:${CHAR_COLORS[k]}" data-k="${k}"><div class="l-ibtn-inner" style="color:${CHAR_COLORS[k]};background:${CHAR_COLORS[k]}22">i</div></button>`;
@@ -799,8 +801,8 @@ updateSyncStatus('syncing');
 syncFromSheet(true).then(ok => {
   const active = CK;
   ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
-  CK = active;
-  if (active) renderAll();
+  CK = active || null;
+  if (active && typeof renderAll === 'function') renderAll();
   rLogin();
 });
 
