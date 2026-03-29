@@ -797,27 +797,22 @@ initStars();
 // Auto-sync on load — fetch sheet then reinitialise all chars
 updateSyncStatus('syncing');
 syncFromSheet(true).then(ok => {
-  if (ok) ['cap', 'howard', 'thowra'].forEach(k => {
-    // Only reinit if not currently active to avoid wiping live session
-    if (CK !== k) {
-      const tmp = CK; CK = k;
-      initS(k);
-      CK = tmp;
-    }
-  });
+  const active = CK;
+  ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
+  CK = active;
+  if (active) renderAll();
   rLogin();
 });
 
-// Manual sync — works from login or character screen
+// Manual sync — reinitialise all characters from sheet
 function manualSync() {
   updateSyncStatus('syncing');
   syncFromSheet(true).then(ok => {
     if (!ok) return;
-    // Reinitialise all characters from fresh sheet data
-    ['cap', 'howard', 'thowra'].forEach(k => {
-      const wasActive = (CK === k);
-      if (wasActive) { initS(k); renderAll(); }
-    });
+    const active = CK;
+    ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
+    CK = active;
+    if (active) renderAll();
     rLogin();
   });
 }
