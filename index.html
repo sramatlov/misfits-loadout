@@ -18,12 +18,16 @@
   <div class="l-title">Intergalactic<br>Cargo Inc.</div>
   <div class="l-sub">Harry the Hauler · Field Terminal</div>
   <div class="l-grid" id="loginGrid"></div>
+  <div class="l-loading" id="loginLoading">
+    <div class="ll-bar"><div class="ll-fill" id="llFill"></div></div>
+    <div class="ll-status" id="llStatus">Initialising systems...</div>
+  </div>
   <div class="gm-entry" onclick="openGM()">
     <span class="gm-icon">⚙</span> GM Reference
   </div>
   <div class="sync-row">
     <div id="syncStatus" class="sync-status"></div>
-    <button class="sync-btn" onclick="manualSync()">↻ Sync sheet</button>
+    <button class="sync-btn" onclick="manualSync()">↻ Sync data</button>
   </div>
 </div>
 

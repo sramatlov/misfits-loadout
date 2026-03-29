@@ -109,6 +109,25 @@ function rLogin() {
   });
 }
 
+function showLoginLoading() {
+  const g = $('loginGrid'), ll = $('loginLoading');
+  if (g) g.classList.add('hidden');
+  if (ll) ll.classList.add('on');
+  setLoadingProgress(0, 'Contacting Harry the Hauler...');
+}
+
+function hideLoginLoading() {
+  const g = $('loginGrid'), ll = $('loginLoading');
+  if (ll) ll.classList.remove('on');
+  if (g) { g.classList.remove('hidden'); g.classList.add('visible'); }
+}
+
+function setLoadingProgress(pct, msg) {
+  const fill = $('llFill'), status = $('llStatus');
+  if (fill) fill.style.width = pct + '%';
+  if (status && msg) status.textContent = msg;
+}
+
 function showSummary(k) {
   const c = CHARS[k], s = c.summary, p = $('sumPanel');
   p.innerHTML = `<div class="sum-header"><div class="sum-class">:: crew dossier // personnel file</div><button class="sum-close" onclick="closeSummary()">✕</button><div class="sum-name">${c.displayName}</div><div class="sum-hc">${s.hc}</div></div>
@@ -406,6 +425,14 @@ function rGuide() {
 
 // ─── BASELINE STATE (set on sync, used for end session diff) ───
 let BASELINE = {};
+
+// Reinitialise all characters from current sheet data, preserve active session
+function reinitAllChars() {
+  const active = CK;
+  ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
+  CK = active || null;
+  if (active && typeof renderAll === 'function') renderAll();
+}
 
 function captureBaseline() {
   BASELINE = {};
@@ -952,17 +979,26 @@ function initStars() {
 rLogin();
 initStars();
 
-// Auto-sync on load — fetch sheet then reinitialise all chars
-updateSyncStatus('syncing');
+// Auto-sync on load with loading screen
+showLoginLoading();
+setLoadingProgress(15, 'Contacting Harry the Hauler...');
 syncFromSheet(true).then(ok => {
-  if (ok) {
-    const active = CK;
-    ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
-    CK = active || null;
-    captureBaseline();
-    if (active && typeof renderAll === 'function') renderAll();
-  }
-  rLogin();
+  setLoadingProgress(60, ok ? 'Parsing crew manifest...' : 'Harry not responding — using local data...');
+  setTimeout(() => {
+    if (ok) {
+      setLoadingProgress(85, 'Initialising crew terminals...');
+      setTimeout(() => {
+        ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
+        CK = null;
+        captureBaseline();
+        setLoadingProgress(100, 'Systems online.');
+        setTimeout(() => { hideLoginLoading(); rLogin(); }, 300);
+      }, 200);
+    } else {
+      setLoadingProgress(100, 'Running on local data.');
+      setTimeout(() => { hideLoginLoading(); rLogin(); }, 400);
+    }
+  }, 200);
 });
 
 // Manual sync — reinitialise all characters from sheet

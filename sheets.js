@@ -94,13 +94,14 @@ function parseChar(rows, key) {
       });
     }
 
-    // Corruption — X markers at col+0, col+2 etc mean corruption boxes
+    // Corruption — X markers = pre-marked boxes; track existence comes from data.js
     if (label === 'corruption') {
       const marked = [];
       STRESS_OFFSETS.forEach((off, idx) => {
         if (cv(row, col + off).toUpperCase() === 'X') marked.push(idx);
       });
-      out.hasCorrTrk = marked.length > 0;
+      // hasCorrTrk: true only for howard (check data.js)
+      out.hasCorrTrk = typeof CHARS !== 'undefined' && CHARS[key]?.corruption !== null;
       out.corrMarked = marked;
     }
 
@@ -164,12 +165,15 @@ function applySheetData(key, parsed) {
   if (parsed.physMarked) c.stress.phys.preMarked = parsed.physMarked;
   if (parsed.mentMarked) c.stress.ment.preMarked = parsed.mentMarked;
 
-  if (parsed.hasCorrTrk !== undefined) {
+  // Corruption track — reset to sheet state, then apply X markers
+  if (parsed.corrMarked !== undefined) {
     if (parsed.hasCorrTrk) {
+      // Reset to empty, then mark only what the sheet shows
       const corrCount = 4;
-      if (!c.corruption) c.corruption = Array(corrCount).fill(false);
+      c.corruption = Array(corrCount).fill(false);
       parsed.corrMarked.forEach(idx => { if (idx < corrCount) c.corruption[idx] = true; });
     } else {
+      // No corruption track for this character
       c.corruption = null;
     }
   }
@@ -220,8 +224,13 @@ async function syncFromSheet(showStatus, forceRefresh = false) {
   if (cached) {
     applyRows(cached);
     if (showStatus) updateSyncStatus('ok');
-    // Refresh in background silently
-    fetchAndCache().then(rows => { if (rows) applyRows(rows); });
+    // Refresh in background silently then reinitialise
+    fetchAndCache().then(rows => {
+      if (rows) {
+        applyRows(rows);
+        if (typeof reinitAllChars === 'function') reinitAllChars();
+      }
+    });
     return true;
   }
 
@@ -280,11 +289,10 @@ function applyRows(rows) {
 
 function updateSyncStatus(state) {
   const el = document.getElementById('syncStatus');
-  if (!el) return;
   const s = {
     syncing: ['↻', 'Syncing...', 'var(--muted)'],
-    ok:      ['✓', 'Sheet synced', 'var(--adv)'],
+    ok:      ['✓', 'Data synced', 'var(--adv)'],
     err:     ['✕', 'Offline — local data', 'var(--danger)']
   }[state];
-  el.innerHTML = `<span style="color:${s[2]}">${s[0]} ${s[1]}</span>`;
+  if (el) el.innerHTML = `<span style="color:${s[2]}">${s[0]} ${s[1]}</span>`;
 }
