@@ -497,16 +497,18 @@ function closeEndSession() {
 }
 
 function startNewSession() {
-  closeEndSession();
-  // Clear all saved session state
+  // Clear all saved session state and sheet cache
   localStorage.removeItem(LS_KEY);
+  localStorage.removeItem(SHEET_CACHE_KEY);
   updateSyncStatus('syncing');
   syncFromSheet(true).then(ok => {
-    const active = CK;
     ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
-    CK = active || null;
+    CK = null;
     captureBaseline();
-    if (active && typeof renderAll === 'function') renderAll();
+    // Return to login screen
+    $('app').classList.remove('on');
+    $('login').classList.remove('off');
+    switchTab('moves');
     rLogin();
   });
 }
@@ -526,7 +528,27 @@ const LOGOUT_LINES = [
   ["Bailing?", "Your cut of the cargo stays. The debt doesn't."],
 ];
 
+const STOP_SESSION_LINES = [
+  ["Docking for the night?", "Tell the GM what you broke. They already know."],
+  ["Session over?", "Harry's logged it. Every terrible decision. All of them."],
+  ["Calling it?", "Brief the GM before they brief you on why this was your fault."],
+  ["Standing down?", "The sheet needs updating. You know what you did."],
+  ["End of the line?", "Don't forget to confess your consequences to the GM."],
+  ["Shutting it down?", "Outstanding warrants: 3. Outstanding character growth: debatable."],
+  ["Wrapping up?", "The Misfits will remember this. Unfortunately."],
+  ["Going offline?", "Sync the sheet. The GM has a long memory and a longer grudge."],
+  ["Session closed?", "Someone owes the GM an explanation. Probably you."],
+  ["Heading out?", "Harry's filing the incident report. It's mostly your fault."],
+];
+
 function randomLogoutLine() { return LOGOUT_LINES[Math.floor(Math.random() * LOGOUT_LINES.length)]; }
+function randomStopLine()   { return STOP_SESSION_LINES[Math.floor(Math.random() * STOP_SESSION_LINES.length)]; }
+
+function confirmStopSession() {
+  closeEndSession();
+  const [t, sub] = randomStopLine();
+  showCfm(t, sub, () => { startNewSession(); });
+}
 let cfmAnim = null;
 function startCircuit() {
   const canvas = $('cfmCanvas');

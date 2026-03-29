@@ -218,17 +218,27 @@ function applySheetData(key, parsed) {
 }
 
 // ─── SYNC ───
+const SHEET_CACHE_KEY = 'misfits-sheet-cache';
+const SHEET_CACHE_TTL = 1000 * 60 * 30; // 30 min
+
 async function syncFromSheet(showStatus) {
   if (showStatus) updateSyncStatus('syncing');
+
+  // Try cache first — apply instantly, then refresh in background
+  const cached = loadSheetCache();
+  if (cached) {
+    applyRows(cached);
+    if (showStatus) updateSyncStatus('ok');
+    // Refresh in background silently
+    fetchAndCache().then(rows => { if (rows) applyRows(rows); });
+    return true;
+  }
+
+  // No cache — must fetch, show syncing
   try {
-    const res = await fetch(SHEET_URL);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-    const rows = parseCSV(text);
-    Object.keys(CHAR_COL).forEach(k => {
-      const parsed = parseChar(rows, k);
-      applySheetData(k, parsed);
-    });
+    const rows = await fetchAndCache();
+    if (!rows) throw new Error('Fetch returned nothing');
+    applyRows(rows);
     if (showStatus) updateSyncStatus('ok');
     return true;
   } catch (e) {
@@ -236,6 +246,42 @@ async function syncFromSheet(showStatus) {
     if (showStatus) updateSyncStatus('err');
     return false;
   }
+}
+
+async function fetchAndCache() {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    const url = SHEET_URL + '&t=' + Date.now(); // cache-bust
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const text = await res.text();
+    const rows = parseCSV(text);
+    // Cache the parsed rows
+    try { localStorage.setItem(SHEET_CACHE_KEY, JSON.stringify({ rows, ts: Date.now() })); } catch {}
+    return rows;
+  } catch (e) {
+    clearTimeout(timeout);
+    return null;
+  }
+}
+
+function loadSheetCache() {
+  try {
+    const raw = localStorage.getItem(SHEET_CACHE_KEY);
+    if (!raw) return null;
+    const { rows, ts } = JSON.parse(raw);
+    if (Date.now() - ts > SHEET_CACHE_TTL) return null;
+    return rows;
+  } catch { return null; }
+}
+
+function applyRows(rows) {
+  Object.keys(CHAR_COL).forEach(k => {
+    const parsed = parseChar(rows, k);
+    applySheetData(k, parsed);
+  });
 }
 
 function updateSyncStatus(state) {
