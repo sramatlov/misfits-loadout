@@ -7,7 +7,14 @@ let CK = null, S = {};
 const LS_KEY = 'misfits-v9';
 
 function loadLS() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch { return {}; } }
-function saveLS() { if (!CK) return; const d = loadLS(); d[CK] = S; localStorage.setItem(LS_KEY, JSON.stringify(d)); }
+function saveLS() {
+  if (!CK) return;
+  const d = loadLS();
+  // Strip transient UI state before saving
+  const { selAction, expSkill, expMove, ...persist } = S;
+  d[CK] = persist;
+  localStorage.setItem(LS_KEY, JSON.stringify(d));
+}
 
 function initS(k) {
   CK = k;
@@ -34,10 +41,13 @@ function initS(k) {
   if (saved) {
     // Preserve session-only state: FP, move usage, corruption marks, log
     // Stress resets to sheet initial state (empty unless sheet has X markers)
+    // Reconcile moves: use saved values only for IDs that still exist
+    const reconMoves = {};
+    Object.keys(moves).forEach(id => { reconMoves[id] = saved.moves?.[id] ?? false; });
     S = {
       fp: saved.fp !== undefined ? saved.fp : c.refresh,
       stress: { phys: physArr, ment: mentArr },
-      moves: saved.moves || moves,
+      moves: reconMoves,
       cons,
       fi,
       corruption: saved.corruption !== undefined ? saved.corruption : corruption,
@@ -197,8 +207,12 @@ function rCorr() {
   const allFull = S.corruption.every(v => v);
   const icon = $('lblOmega');
   if (icon) {
-    icon.classList.remove('maxed');
-    if (allFull) { void icon.offsetWidth; icon.classList.add('maxed'); }
+    if (allFull && !icon.classList.contains('maxed')) {
+      void icon.offsetWidth;
+      icon.classList.add('maxed');
+    } else if (!allFull) {
+      icon.classList.remove('maxed');
+    }
   }
   S.corruption.forEach((v, i) => {
     const b = document.createElement('div');
@@ -397,8 +411,9 @@ function captureBaseline() {
   BASELINE = {};
   ['cap', 'howard', 'thowra'].forEach(k => {
     const c = CHARS[k];
+    const savedS = loadLS()[k];
     BASELINE[k] = {
-      fp: c.refresh,
+      fp: savedS?.fp ?? c.refresh,
       physBoxes: c.stress.phys.boxes,
       mentBoxes: c.stress.ment.boxes,
       cons: c.cons.map(cn => ({ id: cn.id, lbl: cn.lbl, abs: cn.abs, val: cn.val })),
@@ -514,7 +529,7 @@ function startNewSession() {
 }
 function togColl(id)    { $(id).classList.toggle('open'); }
 function resetScene()   { const c = CHARS[CK]; c.stunts.forEach(s => S.moves[s.id] = false); saveLS(); rMoves(); addLog('Scene reset'); }
-function confirmReset() { showCfm("Start a new session?", "All stress, fate points and consequences reset. The debt collectors stay.", () => { const c = CHARS[CK]; S.fp = c.refresh; S.stress.phys.fill(false); S.stress.ment.fill(false); Object.keys(S.moves).forEach(k => S.moves[k] = false); Object.keys(S.cons).forEach(k => S.cons[k] = null); Object.keys(S.fi).forEach(k => S.fi[k] = 0); if (S.corruption) S.corruption.fill(false); S.log = []; saveLS(); renderAll(); addLog('New session started'); }); }
+// confirmReset removed — replaced by End Session flow
 const LOGOUT_LINES = [
   ["Abandoning post?", "Harry's running on autopilot. Don't blame us if he lands in a sun."],
   ["Stepping out?", "The cargo won't smuggle itself. Probably."],
@@ -940,18 +955,20 @@ initStars();
 // Auto-sync on load — fetch sheet then reinitialise all chars
 updateSyncStatus('syncing');
 syncFromSheet(true).then(ok => {
-  const active = CK;
-  ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
-  CK = active || null;
-  captureBaseline();
-  if (active && typeof renderAll === 'function') renderAll();
+  if (ok) {
+    const active = CK;
+    ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
+    CK = active || null;
+    captureBaseline();
+    if (active && typeof renderAll === 'function') renderAll();
+  }
   rLogin();
 });
 
 // Manual sync — reinitialise all characters from sheet
 function manualSync() {
   updateSyncStatus('syncing');
-  syncFromSheet(true).then(ok => {
+  syncFromSheet(true, true).then(ok => {  // force refresh, bypass cache
     if (!ok) return;
     const active = CK;
     ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });

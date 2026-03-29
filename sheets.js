@@ -116,23 +116,18 @@ function parseChar(rows, key) {
       if (nm) out.aspects.push({ ty: ASP_TYPE_MAP[label], nm });
     }
 
-    // Stunts — col A is empty, col for char has stunt text
-    if (label === '' && ri > 54 && ri < 61) {
+    // Stunts section — track by label markers
+    if (label === 'stunts') { out._inStunts = true; out._inExtras = false; }
+    if (label === 'description' || label === 'notes') { out._inStunts = false; out._inExtras = false; }
+    if (label === 'extra' && out._inStunts) { out._inExtras = true; }
+
+    if (out._inStunts && label === '') {
       const v = cv(row, col);
       if (v) {
-        // Determine if it's an extra (Extra label came before) or stunt
-        const prevLabel = cv(rows[ri - 1] || [], 0).toLowerCase();
-        if (prevLabel === 'extra' || out._inExtras) {
-          out._inExtras = true;
-          out.extrasRaw.push(v);
-        } else {
-          out.stuntsRaw.push(v);
-        }
+        if (out._inExtras) out.extrasRaw.push(v);
+        else out.stuntsRaw.push(v);
       }
     }
-
-    // Extra row acts as separator
-    if (label === 'extra') out._inExtras = false;
   });
 
   return out;
@@ -189,11 +184,7 @@ function applySheetData(key, parsed) {
 
   if (parsed.cons.length) {
     c.cons = parsed.cons;
-    // Also update active session consequence values if this char is loaded
-    if (typeof S !== 'undefined' && typeof CK !== 'undefined' && CK === key) {
-      c.cons.forEach(cn => { if (S.cons[cn.id] === undefined) S.cons[cn.id] = cn.val; else S.cons[cn.id] = cn.val; });
-      saveLS();
-    }
+    // Session state (S.cons) is rebuilt in initS — sheets.js doesn't touch it
   }
 
   parsed.stuntsRaw.forEach((raw, i) => {
@@ -221,11 +212,11 @@ function applySheetData(key, parsed) {
 const SHEET_CACHE_KEY = 'misfits-sheet-cache';
 const SHEET_CACHE_TTL = 1000 * 60 * 30; // 30 min
 
-async function syncFromSheet(showStatus) {
+async function syncFromSheet(showStatus, forceRefresh = false) {
   if (showStatus) updateSyncStatus('syncing');
 
-  // Try cache first — apply instantly, then refresh in background
-  const cached = loadSheetCache();
+  // Use cache unless forced (manual sync always forces)
+  const cached = !forceRefresh && loadSheetCache();
   if (cached) {
     applyRows(cached);
     if (showStatus) updateSyncStatus('ok');
@@ -234,7 +225,7 @@ async function syncFromSheet(showStatus) {
     return true;
   }
 
-  // No cache — must fetch, show syncing
+  // No cache or force refresh — fetch fresh
   try {
     const rows = await fetchAndCache();
     if (!rows) throw new Error('Fetch returned nothing');
@@ -243,6 +234,9 @@ async function syncFromSheet(showStatus) {
     return true;
   } catch (e) {
     console.warn('Sheet sync failed:', e);
+    // Fall back to cache even if stale
+    const stale = loadSheetCache(true);
+    if (stale) { applyRows(stale); if (showStatus) updateSyncStatus('err'); return true; }
     if (showStatus) updateSyncStatus('err');
     return false;
   }
@@ -267,12 +261,12 @@ async function fetchAndCache() {
   }
 }
 
-function loadSheetCache() {
+function loadSheetCache(allowStale = false) {
   try {
     const raw = localStorage.getItem(SHEET_CACHE_KEY);
     if (!raw) return null;
     const { rows, ts } = JSON.parse(raw);
-    if (Date.now() - ts > SHEET_CACHE_TTL) return null;
+    if (!allowStale && Date.now() - ts > SHEET_CACHE_TTL) return null;
     return rows;
   } catch { return null; }
 }
