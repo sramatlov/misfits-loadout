@@ -287,8 +287,10 @@ button{appearance:none;cursor:pointer}
 .fi-btn:active{color:var(--accent);border-color:var(--accent)}
 .fi-ct{font-family:Rajdhani,sans-serif;font-size:16px;font-weight:700;color:var(--accent);min-width:18px;text-align:center}
 .fi-lbl{font-size:11px;color:var(--muted);letter-spacing:.5px}
-.asp-toggle{font-size:14px;color:var(--muted);margin-top:8px;cursor:pointer}
-.asp-hint{display:none;font-size:14px;color:#6e7e8e;line-height:1.6;margin-top:8px;padding:10px 12px;background:var(--inset);border:1px solid var(--border-light);border-radius:var(--r)}
+.asp-tog-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.asp-toggle{font-size:13px;color:var(--muted);cursor:pointer;background:none;border:none;padding:0;font-family:inherit;letter-spacing:.03em}
+.asp-toggle:hover{color:var(--text)}
+.asp-hint{display:none;font-size:14px;color:#6e7e8e;line-height:1.6;margin-top:6px;padding:10px 12px;background:var(--inset);border:1px solid var(--border-light);border-radius:var(--r)}
 .asp-hint.on{display:block}
 .asp-hint strong{color:var(--text);font-weight:500}
 .asp-ref{background:rgba(11,15,22,0.6);border:1px solid rgba(255,255,255,0.05);border-radius:var(--r);padding:14px 16px;font-size:14px;line-height:1.7;color:#6e7e8e;margin-top:12px}

@@ -426,14 +426,32 @@ function rAspects() {
     if (a.inv) hintContent += `<strong style="color:var(--adv)">Invoke:</strong> ${a.inv}<br><br>`;
     if (a.cmp) hintContent += `<strong style="color:var(--danger)">Compel:</strong> ${a.cmp}`;
     if (a.inv || a.cmp) hintContent += '<br><br><em style="color:var(--muted)">Invoke: 1 FP for +2 or reroll. Compel: earn 1 FP, things get complicated.</em>';
-    d.innerHTML = `<div class="asp-ty">${a.ty}</div><div class="asp-nm">${a.nm}</div><div class="asp-chips">${chips}${fiH}</div>${hintContent ? `<div class="asp-toggle" data-i="${i}">▸ When to use</div><div class="asp-hint" id="ah-${i}">${hintContent}</div>` : ''}`;
+    const hasHint = !!(a.inv || a.cmp);
+    const hasLore = !!a.lore;
+    let toggleRow = '';
+    if (hasHint || hasLore) {
+      toggleRow = '<div class="asp-tog-row">';
+      if (hasHint) toggleRow += `<button class="asp-toggle" data-i="${i}" data-type="hint">▸ When to use</button>`;
+      if (hasLore) toggleRow += `<button class="asp-toggle" data-i="${i}" data-type="lore">▸ Background</button>`;
+      toggleRow += '</div>';
+    }
+    const hintPanel = hasHint ? `<div class="asp-hint" id="ah-${i}">${hintContent}</div>` : '';
+    const lorePanel = hasLore ? `<div class="asp-hint" id="al-${i}">${a.lore}</div>` : '';
+    d.innerHTML = `<div class="asp-ty">${a.ty}</div><div class="asp-nm">${a.nm}</div><div class="asp-chips">${chips}${fiH}</div>${toggleRow}${hintPanel}${lorePanel}`;
     d.querySelectorAll('.fi-btn').forEach(b => b.onclick = (e) => {
       e.stopPropagation(); const idx = +b.dataset.i;
       S.fi[idx] = Math.max(0, (S.fi[idx]||0) + (b.dataset.dir === '+' ? 1 : -1)); saveLS(); rAspects();
       addLog(b.dataset.dir === '+' ? `Free invoke added: ${a.nm}` : `Free invoke spent: ${a.nm}`);
     });
-    const tog = d.querySelector('.asp-toggle');
-    if (tog) tog.onclick = () => { const h = $('ah-' + i); h.classList.toggle('on'); tog.textContent = h.classList.contains('on') ? '▾ When to use' : '▸ When to use'; };
+    d.querySelectorAll('.asp-toggle').forEach(btn => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const type = btn.dataset.type;
+        const panel = type === 'hint' ? $('ah-' + btn.dataset.i) : $('al-' + btn.dataset.i);
+        const open = panel.classList.toggle('on');
+        btn.textContent = (open ? '▾ ' : '▸ ') + (type === 'hint' ? 'When to use' : 'Background');
+      };
+    });
     w.appendChild(d);
   });
 }
