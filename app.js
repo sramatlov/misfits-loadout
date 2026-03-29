@@ -390,7 +390,125 @@ function rGuide() {
   });
 }
 
-// ─── COLLAPSIBLE / RESET / CONFIRM ───
+// ─── BASELINE STATE (set on sync, used for end session diff) ───
+let BASELINE = {};
+
+function captureBaseline() {
+  BASELINE = {};
+  ['cap', 'howard', 'thowra'].forEach(k => {
+    const c = CHARS[k];
+    BASELINE[k] = {
+      fp: c.refresh,
+      physBoxes: c.stress.phys.boxes,
+      mentBoxes: c.stress.ment.boxes,
+      cons: c.cons.map(cn => ({ id: cn.id, lbl: cn.lbl, abs: cn.abs, val: cn.val })),
+      corrCount: c.corruption ? c.corruption.filter(v => v).length : null
+    };
+  });
+}
+
+function showEndSession() {
+  const c = CHARS[CK];
+  const b = BASELINE[CK] || {};
+  const el = $('endSession');
+
+  $('esCharName').textContent = c.displayName;
+
+  let html = '';
+
+  // ── FP ──
+  const fpStart = b.fp !== undefined ? b.fp : c.refresh;
+  const fpNow = S.fp;
+  const fpDiff = fpNow - fpStart;
+  html += `<div class="es-section">
+    <div class="es-section-label">:: fate points</div>
+    <div class="es-row">
+      <div class="es-row-label">Started with</div>
+      <div class="es-row-value">${fpStart}</div>
+    </div>
+    <div class="es-row">
+      <div class="es-row-label">Ended with</div>
+      <div class="es-row-value ${fpDiff < 0 ? 'changed' : fpDiff > 0 ? 'gained' : ''}">${fpNow}</div>
+    </div>
+  </div>`;
+
+  // ── PHYSICAL STRESS ──
+  const physBoxes = S.stress.phys;
+  const physMarked = physBoxes.filter(v => v).length;
+  html += `<div class="es-section">
+    <div class="es-section-label">:: physical stress</div>
+    <div class="es-stress">`;
+  physBoxes.forEach((v, i) => {
+    html += `<div class="es-box ${v ? 'marked' : ''}">${i + 1}</div>`;
+  });
+  html += `</div>`;
+  if (physMarked === 0) html += `<div class="es-none">No physical stress taken</div>`;
+  html += `</div>`;
+
+  // ── MENTAL STRESS ──
+  const mentBoxes = S.stress.ment;
+  const mentMarked = mentBoxes.filter(v => v).length;
+  html += `<div class="es-section">
+    <div class="es-section-label">:: mental stress</div>
+    <div class="es-stress">`;
+  mentBoxes.forEach((v, i) => {
+    html += `<div class="es-box ${v ? 'marked' : ''}">${i + 1}</div>`;
+  });
+  html += `</div>`;
+  if (mentMarked === 0) html += `<div class="es-none">No mental stress taken</div>`;
+  html += `</div>`;
+
+  // ── CORRUPTION (Howard only) ──
+  if (S.corruption) {
+    const corrStart = b.corrCount !== null ? b.corrCount : 0;
+    const corrNow = S.corruption.filter(v => v).length;
+    const corrAdded = corrNow - corrStart;
+    html += `<div class="es-section">
+      <div class="es-section-label">:: omega corruption</div>
+      <div class="es-stress">`;
+    S.corruption.forEach((v, i) => {
+      html += `<div class="es-box corr ${v ? 'marked' : ''}">${i + 1}</div>`;
+    });
+    html += `</div>`;
+    if (corrAdded > 0) html += `<div class="es-row"><div class="es-row-label">Added this session</div><div class="es-row-value changed">+${corrAdded}</div></div>`;
+    else if (corrAdded === 0) html += `<div class="es-none">No new corruption</div>`;
+    html += `</div>`;
+  }
+
+  // ── CONSEQUENCES ──
+  const activeCons = c.cons.filter(cn => S.cons[cn.id]);
+  html += `<div class="es-section">
+    <div class="es-section-label">:: consequences</div>`;
+  if (activeCons.length === 0) {
+    html += `<div class="es-none">No active consequences</div>`;
+  } else {
+    activeCons.forEach(cn => {
+      html += `<div class="es-con"><div class="es-con-lbl">${cn.lbl}</div><div class="es-con-val">${S.cons[cn.id]}</div></div>`;
+    });
+  }
+  html += `</div>`;
+
+  $('esBody').innerHTML = html;
+  el.classList.add('on');
+}
+
+function closeEndSession() {
+  $('endSession').classList.remove('on');
+}
+
+function startNewSession() {
+  closeEndSession();
+  // Re-sync sheet and reinitialise all characters
+  updateSyncStatus('syncing');
+  syncFromSheet(true).then(ok => {
+    const active = CK;
+    ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
+    CK = active || null;
+    captureBaseline();
+    if (active && typeof renderAll === 'function') renderAll();
+    rLogin();
+  });
+}
 function togColl(id)    { $(id).classList.toggle('open'); }
 function resetScene()   { const c = CHARS[CK]; c.stunts.forEach(s => S.moves[s.id] = false); saveLS(); rMoves(); addLog('Scene reset'); }
 function confirmReset() { showCfm("Start a new session?", "All stress, fate points and consequences reset. The debt collectors stay.", () => { const c = CHARS[CK]; S.fp = c.refresh; S.stress.phys.fill(false); S.stress.ment.fill(false); Object.keys(S.moves).forEach(k => S.moves[k] = false); Object.keys(S.cons).forEach(k => S.cons[k] = null); Object.keys(S.fi).forEach(k => S.fi[k] = 0); if (S.corruption) S.corruption.fill(false); S.log = []; saveLS(); renderAll(); addLog('New session started'); }); }
@@ -802,6 +920,7 @@ syncFromSheet(true).then(ok => {
   const active = CK;
   ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
   CK = active || null;
+  captureBaseline();
   if (active && typeof renderAll === 'function') renderAll();
   rLogin();
 });
@@ -813,8 +932,9 @@ function manualSync() {
     if (!ok) return;
     const active = CK;
     ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
-    CK = active;
-    if (active) renderAll();
+    CK = active || null;
+    captureBaseline();
+    if (active && typeof renderAll === 'function') renderAll();
     rLogin();
   });
 }

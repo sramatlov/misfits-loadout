@@ -113,7 +113,7 @@
       </div>
       <div class="reset-row">
         <button class="rbtn" onclick="resetScene()">↺ New Scene</button>
-        <button class="rbtn" onclick="confirmReset()">↺ New Session</button>
+        <button class="rbtn end-session-btn" onclick="showEndSession()">⏹ End Session</button>
       </div>
       <div class="bspc"></div>
     </div>
@@ -160,6 +160,21 @@
       <div class="cfm-t" id="cfmT"></div>
       <div class="cfm-sub" id="cfmSub"></div>
       <div class="cfm-row"><button class="cfm-n" onclick="cancelCfm()">Stay</button><button class="cfm-y" id="cfmY">Leave</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ END SESSION ═══ -->
+<div id="endSession">
+  <div class="es-panel">
+    <div class="es-header">
+      <div class="es-label">:: session report</div>
+      <div class="es-title" id="esCharName"></div>
+    </div>
+    <div class="es-body" id="esBody"></div>
+    <div class="es-footer">
+      <button class="es-btn-secondary" onclick="closeEndSession()">Back to Game</button>
+      <button class="es-btn-primary" onclick="startNewSession()">Start New Session</button>
     </div>
   </div>
 </div>
