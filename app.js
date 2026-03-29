@@ -4,7 +4,10 @@
 
 // ─── STATE + PERSISTENCE ───
 let CK = null, S = {};
-const LS_KEY = 'misfits-v9';
+const LS_KEY = 'misfits-v10';
+
+// Clear any stale keys from old versions
+['misfits-v9', 'misfits-sheet-cache'].forEach(k => localStorage.removeItem(k));
 
 function loadLS() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch { return {}; } }
 function saveLS() {
@@ -1006,10 +1009,10 @@ initStars();
 (async () => {
   showLoginLoading();
   setLoadingProgress(20, 'Contacting Harry the Hauler...');
-  const data = await fetchBoth();
-  if (data) {
+  const characters = await fetchBoth();
+  if (characters) {
     setLoadingProgress(70, 'Parsing crew manifest...');
-    applyCache(data);
+    applyPCData(characters);
     setLoadingProgress(90, 'Initialising crew terminals...');
     initAllChars();
     captureBaseline();
@@ -1027,24 +1030,20 @@ initStars();
 // Manual sync — force fresh fetch, reinitialise all characters
 function manualSync() {
   localStorage.removeItem(LS_KEY);
-  // Show loading screen animation
   showLoginLoading();
   setLoadingProgress(15, 'Contacting Harry the Hauler...');
-  syncFromSheet(true, true).then(ok => {
-    setLoadingProgress(60, ok ? 'Parsing crew manifest...' : 'Harry not responding — using local data...');
+  fetchBoth().then(characters => {
+    setLoadingProgress(70, characters ? 'Parsing crew manifest...' : 'Harry not responding — using local data...');
+    if (characters) applyPCData(characters);
+    setLoadingProgress(90, 'Reinitialising crew terminals...');
+    initAllChars();
+    captureBaseline();
+    setLoadingProgress(100, characters ? 'Data synced.' : 'Running on local data.');
+    updateSyncStatus(characters ? 'ok' : 'err');
     setTimeout(() => {
-      setLoadingProgress(85, 'Reinitialising crew terminals...');
-      setTimeout(() => {
-        initAllChars();
-        captureBaseline();
-        setLoadingProgress(100, ok ? 'Data synced.' : 'Running on local data.');
-        setTimeout(() => {
-          hideLoginLoading();
-          // If a character screen was open, re-render it with fresh data
-          if (CK && typeof renderAll === 'function') renderAll();
-          rLogin();
-        }, 300);
-      }, 200);
+      hideLoginLoading();
+      if (CK && typeof renderAll === 'function') renderAll();
+      rLogin();
     }, 200);
   });
 }
