@@ -6,7 +6,7 @@ const PC_APP_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSM4t7tbXZ
 const BEST_APP_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSM4t7tbXZbDcph1wFRn8Et5sjFsOqBjTEqreYSDq2vMMB8LB2XzW4Sq-ju_E7iKdFeoiteqGxZI4Ap/pub?gid=1991436452&single=true&output=csv';
 
 const SHEET_CACHE_KEY = 'misfits-sheet-cache';
-const SHEET_CACHE_TTL = 1000 * 60 * 30; // 30 min
+const SHEET_CACHE_TTL = 1000 * 60 * 2; // 2 min — consequences need to stay fresh
 
 // ─── CSV PARSER ───
 function parseCSV(text) {
@@ -206,9 +206,11 @@ async function syncFromSheet(showStatus, forceRefresh = false) {
     if (cached) {
       applyCache(cached);
       if (showStatus) updateSyncStatus('ok');
-      // Refresh in background
-      fetchBoth().then(data => { if (data) { saveSheetCache(data); applyCache(data); if (typeof reinitAllChars === 'function') reinitAllChars(); } });
-      return true;
+      // Always refresh in background — cache may be stale
+      fetchBoth().then(data => {
+        if (data) { saveSheetCache(data); applyCache(data); if (typeof reinitAllChars === 'function') reinitAllChars(); }
+      });
+      return true;  // CHARS updated — caller must call initAllChars
     }
   }
 
