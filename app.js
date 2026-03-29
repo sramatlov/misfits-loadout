@@ -390,8 +390,10 @@ function mkSk(s) {
     if (m.d) ds += `<div class="sk-ad"><b class="cd">DEF:</b> ${m.d}</div>`;
     const annH = dn ? `<div class="sk-ann">${dn}</div>` : '';
     const nt = m.n ? `<div class="sk-note">ⓘ ${m.n}</div>` : '';
-    const party = PS[s.nm]; let tw = '';
-    if (party) {
+    const party = { Cap: CHARS.cap.skills[s.nm]||0, Howard: CHARS.howard.skills[s.nm]||0, Thowra: CHARS.thowra.skills[s.nm]||0 };
+    const hasParty = Object.values(party).some(v => v > 0);
+    let tw = '';
+    if (hasParty) {
       const rest = TR[s.nm], mems = Object.entries(party), best = Math.max(...mems.map(x => x[1])), harry = HS[s.nm];
       let mH = mems.map(([n,r]) => { const isL = r === best && r > 0, canA = !isL && r >= 1; return `<span class="tw-m ${isL?'lead':canA?'help':'no'}">${n} +${r}${isL?' ★':canA?' +1':''}</span>`; }).join('');
       if (harry) mH += `<span class="tw-m help">Harry +${harry.rt} (${harry.nm})</span>`;
@@ -771,7 +773,7 @@ function rGMSkills() {
     tbl.innerHTML = '<thead><tr><th>Skill</th><th>Cap</th><th>How</th><th>Tho</th><th>Harry</th></tr></thead>';
     const tbody = document.createElement('tbody');
     skills.forEach(sk => {
-      const ps = PS[sk] || {}, vals = [ps.Cap||0, ps.Howard||0, ps.Thowra||0], harry = HS[sk], best = Math.max(...vals);
+      const vals = [CHARS.cap.skills[sk]||0, CHARS.howard.skills[sk]||0, CHARS.thowra.skills[sk]||0], harry = HS[sk], best = Math.max(...vals);
       const tr = document.createElement('tr'), restrict = TR[sk];
       if (restrict) tr.className = 'restrict';
       let harryTd = harry ? `<td class="num md">+${harry.rt}</td>` : '<td class="num lo">—</td>';

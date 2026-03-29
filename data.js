@@ -42,31 +42,6 @@ const SM = {
   Culture:     {g:'Academics',  o:'Know history, law, customs, current events, theology',   c:'Introduce cultural knowledge as scene aspects',                    a:null,                                       d:null}
 };
 
-// ─── PARTY SKILL RATINGS (for teamwork viewer) ───
-const PS = {
-  Physique:    {Cap:5, Howard:1, Thowra:2},
-  Athletics:   {Cap:2, Howard:2, Thowra:2},
-  Will:        {Cap:2, Howard:4, Thowra:4},
-  Rapport:     {Cap:3, Howard:0, Thowra:0},
-  Deceive:     {Cap:1, Howard:1, Thowra:3},
-  Provoke:     {Cap:1, Howard:1, Thowra:3},
-  Empathy:     {Cap:0, Howard:0, Thowra:5},
-  Contacts:    {Cap:2, Howard:1, Thowra:0},
-  Shoot:       {Cap:3, Howard:1, Thowra:4},
-  Fight:       {Cap:3, Howard:2, Thowra:0},
-  Survival:    {Cap:4, Howard:0, Thowra:2},
-  Burglary:    {Cap:0, Howard:3, Thowra:0},
-  Stealth:     {Cap:0, Howard:3, Thowra:1},
-  Investigate: {Cap:0, Howard:2, Thowra:1},
-  Drive:       {Cap:1, Howard:0, Thowra:0},
-  Pilot:       {Cap:1, Howard:0, Thowra:2},
-  Navigate:    {Cap:1, Howard:0, Thowra:0},
-  Engineering: {Cap:0, Howard:5, Thowra:0},
-  Medicine:    {Cap:0, Howard:3, Thowra:1},
-  Science:     {Cap:0, Howard:2, Thowra:1},
-  Culture:     {Cap:2, Howard:0, Thowra:0}
-};
-
 // ─── HARRY THE HAULER SHIP SKILLS ───
 const HS = {
   Shoot:       {nm:'Weapons',        rt:1},
