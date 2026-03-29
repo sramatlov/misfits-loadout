@@ -150,63 +150,52 @@ function parseStuntStr(str) {
   };
 }
 
-// ─── APPLY PARSED DATA TO CHARS ───
 function applySheetData(key, parsed) {
   const c = CHARS[key];
   if (!c) return;
 
-  // Refresh
   if (parsed.refresh) c.refresh = parsed.refresh;
 
-  // Skills — update all matched skills
-  if (Object.keys(parsed.skills).length) {
-    Object.assign(c.skills, parsed.skills);
-  }
+  if (Object.keys(parsed.skills).length) Object.assign(c.skills, parsed.skills);
 
-  // Stress box counts — calculated from Fate Core rules:
-  // Physique/Will 0 = 2 boxes, +1/+2 = 3 boxes, +3/+4 = 4 boxes, +5 = 4 boxes + extra mild con
+  // Stress box counts from Fate Core rules
   const phys = c.skills.Physique || 0;
   const will = c.skills.Will || 0;
   c.stress.phys.boxes = phys >= 3 ? 4 : phys >= 1 ? 3 : 2;
   c.stress.ment.boxes = will >= 3 ? 4 : will >= 1 ? 3 : 2;
-  // bonus = dashed extra boxes from high skill
   c.stress.phys.bonus = phys >= 3 ? 2 : phys >= 1 ? 1 : 0;
   c.stress.ment.bonus = will >= 3 ? 2 : will >= 1 ? 1 : 0;
 
-  // Pre-marked physical stress
   if (parsed.physMarked) c.stress.phys.preMarked = parsed.physMarked;
-
-  // Pre-marked mental stress
   if (parsed.mentMarked) c.stress.ment.preMarked = parsed.mentMarked;
 
-  // Corruption track
   if (parsed.hasCorrTrk !== undefined) {
     if (parsed.hasCorrTrk) {
       const corrCount = 4;
       if (!c.corruption) c.corruption = Array(corrCount).fill(false);
-      // Pre-mark corruption boxes from sheet
       parsed.corrMarked.forEach(idx => { if (idx < corrCount) c.corruption[idx] = true; });
     } else {
       c.corruption = null;
     }
   }
 
-  // Aspects — update names, preserve descriptions
   if (parsed.aspects.length) {
     parsed.aspects.forEach((sa, i) => {
       if (c.aspects[i]) { c.aspects[i].nm = sa.nm; c.aspects[i].ty = sa.ty; }
       else c.aspects.push({ ty: sa.ty, nm: sa.nm, inv: null, cmp: null });
     });
-    // Trim if sheet has fewer aspects
-    if (parsed.aspects.length < c.aspects.length) {
-      c.aspects = c.aspects.slice(0, parsed.aspects.length);
+    if (parsed.aspects.length < c.aspects.length) c.aspects = c.aspects.slice(0, parsed.aspects.length);
+  }
+
+  if (parsed.cons.length) {
+    c.cons = parsed.cons;
+    // Also update active session consequence values if this char is loaded
+    if (typeof S !== 'undefined' && typeof CK !== 'undefined' && CK === key) {
+      c.cons.forEach(cn => { if (S.cons[cn.id] === undefined) S.cons[cn.id] = cn.val; else S.cons[cn.id] = cn.val; });
+      saveLS();
     }
   }
 
-  // Consequences
-  if (parsed.cons.length) c.cons = parsed.cons;
-
-  // Stunts — update name, skill, freq, desc from sheet; preserve when/pairs
   parsed.stuntsRaw.forEach((raw, i) => {
     const p = parseStuntStr(raw);
     if (c.stunts[i]) {
@@ -217,7 +206,6 @@ function applySheetData(key, parsed) {
     }
   });
 
-  // Extras
   parsed.extrasRaw.forEach((raw, i) => {
     const p = parseStuntStr(raw);
     if (c.extras[i]) {
@@ -241,6 +229,8 @@ async function syncFromSheet(showStatus) {
       const parsed = parseChar(rows, k);
       applySheetData(k, parsed);
     });
+    // Re-render if character screen is open
+    if (typeof renderAll === 'function' && typeof CK !== 'undefined' && CK) renderAll();
     if (showStatus) updateSyncStatus('ok');
     return true;
   } catch (e) {
