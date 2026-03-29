@@ -1023,11 +1023,22 @@ syncFromSheet(true).then(ok => {
 
 // Manual sync — force fresh fetch, reinitialise all characters
 function manualSync() {
-  updateSyncStatus('syncing');
+  // Wipe all local state — sheet is the source of truth
+  localStorage.removeItem(LS_KEY);
+  localStorage.removeItem(SHEET_CACHE_KEY);
+  // Show loading screen animation
+  showLoginLoading();
+  setLoadingProgress(15, 'Contacting Harry the Hauler...');
   syncFromSheet(true, true).then(ok => {
-    initAllChars();
-    captureBaseline();
-    if (CK && typeof renderAll === 'function') renderAll();
-    rLogin();
+    setLoadingProgress(60, ok ? 'Parsing crew manifest...' : 'Harry not responding — using local data...');
+    setTimeout(() => {
+      setLoadingProgress(85, 'Reinitialising crew terminals...');
+      setTimeout(() => {
+        initAllChars();
+        captureBaseline();
+        setLoadingProgress(100, ok ? 'Data synced.' : 'Running on local data.');
+        setTimeout(() => { hideLoginLoading(); rLogin(); }, 300);
+      }, 200);
+    }, 200);
   });
 }
