@@ -10,18 +10,16 @@ function loadLS() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {};
 function saveLS() {
   if (!CK) return;
   const d = loadLS();
-  // Strip transient UI state before saving
   const { selAction, expSkill, expMove, ...persist } = S;
   d[CK] = persist;
   localStorage.setItem(LS_KEY, JSON.stringify(d));
 }
 
-function initS(k) {
-  CK = k;
+// Build session state for a character from sheet data + optional saved session state
+// Does NOT touch CK, S, or localStorage — pure function returning state object
+function buildState(k, savedSession) {
   const c = CHARS[k];
-  const saved = loadLS()[k];
 
-  // Build fresh state from sheet data
   const physArr = Array(c.stress.phys.boxes).fill(false);
   const mentArr = Array(c.stress.ment.boxes).fill(false);
   if (c.stress.phys.preMarked) c.stress.phys.preMarked.forEach(i => { if (i < physArr.length) physArr[i] = true; });
@@ -38,32 +36,57 @@ function initS(k) {
 
   const corruption = c.corruption ? c.corruption.slice() : null;
 
-  if (saved) {
-    // Preserve session-only state: FP, move usage, corruption marks, log
-    // Stress resets to sheet initial state (empty unless sheet has X markers)
-    // Reconcile moves: use saved values only for IDs that still exist
+  if (savedSession) {
+    // Preserve session-only: FP, move usage, log, skView
+    // Everything else comes from sheet
     const reconMoves = {};
-    Object.keys(moves).forEach(id => { reconMoves[id] = saved.moves?.[id] ?? false; });
-    S = {
-      fp: saved.fp !== undefined ? saved.fp : c.refresh,
+    Object.keys(moves).forEach(id => { reconMoves[id] = savedSession.moves?.[id] ?? false; });
+    return {
+      fp: savedSession.fp !== undefined ? savedSession.fp : c.refresh,
       stress: { phys: physArr, ment: mentArr },
       moves: reconMoves,
       cons,
       fi,
-      corruption: saved.corruption !== undefined ? saved.corruption : corruption,
+      corruption,
       selAction: null, expSkill: null, expMove: null,
-      skView: saved.skView || 'groups',
-      log: saved.log || []
-    };
-  } else {
-    S = {
-      fp: c.refresh,
-      stress: { phys: physArr, ment: mentArr },
-      moves, cons, fi, corruption,
-      selAction: null, expSkill: null, expMove: null, skView: 'groups', log: []
+      skView: savedSession.skView || 'groups',
+      log: savedSession.log || []
     };
   }
+
+  return {
+    fp: c.refresh,
+    stress: { phys: physArr, ment: mentArr },
+    moves, cons, fi, corruption,
+    selAction: null, expSkill: null, expMove: null, skView: 'groups', log: []
+  };
+}
+
+// Initialise a character — sets CK and S, saves to localStorage
+function initS(k) {
+  CK = k;
+  const saved = loadLS()[k];
+  S = buildState(k, saved);
   saveLS();
+}
+
+// Re-initialise ALL characters from current sheet data, saving each to localStorage
+// Does not disturb the active character's CK/S globals after completion
+function initAllChars() {
+  const ls = loadLS();
+  const result = {};
+  ['cap', 'howard', 'thowra'].forEach(k => {
+    result[k] = buildState(k, ls[k]);
+  });
+  // Write all three to localStorage in one shot
+  const fresh = loadLS();
+  ['cap', 'howard', 'thowra'].forEach(k => {
+    const { selAction, expSkill, expMove, ...persist } = result[k];
+    fresh[k] = persist;
+  });
+  localStorage.setItem(LS_KEY, JSON.stringify(fresh));
+  // If a character is currently active, update S from the fresh state
+  if (CK && result[CK]) S = result[CK];
 }
 
 function addLog(msg) { S.log.unshift(msg); if (S.log.length > 20) S.log.length = 20; saveLS(); rLog(); }
@@ -426,12 +449,10 @@ function rGuide() {
 // ─── BASELINE STATE (set on sync, used for end session diff) ───
 let BASELINE = {};
 
-// Reinitialise all characters from current sheet data, preserve active session
+// Reinitialise all characters — called by background sheet refresh
 function reinitAllChars() {
-  const active = CK;
-  ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
-  CK = active || null;
-  if (active && typeof renderAll === 'function') renderAll();
+  initAllChars();
+  if (CK && typeof renderAll === 'function') renderAll();
 }
 
 function captureBaseline() {
@@ -539,15 +560,13 @@ function closeEndSession() {
 }
 
 function startNewSession() {
-  // Clear all saved session state and sheet cache
   localStorage.removeItem(LS_KEY);
   localStorage.removeItem(SHEET_CACHE_KEY);
   updateSyncStatus('syncing');
-  syncFromSheet(true).then(ok => {
-    ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
-    CK = null;
+  syncFromSheet(true, true).then(() => {
+    initAllChars();
     captureBaseline();
-    // Return to login screen
+    CK = null;
     $('app').classList.remove('on');
     $('login').classList.remove('off');
     switchTab('moves');
@@ -988,29 +1007,27 @@ syncFromSheet(true).then(ok => {
     if (ok) {
       setLoadingProgress(85, 'Initialising crew terminals...');
       setTimeout(() => {
-        ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
-        CK = null;
+        initAllChars();
         captureBaseline();
         setLoadingProgress(100, 'Systems online.');
         setTimeout(() => { hideLoginLoading(); rLogin(); }, 300);
       }, 200);
     } else {
+      // No sheet data — still init from data.js defaults
+      initAllChars();
       setLoadingProgress(100, 'Running on local data.');
       setTimeout(() => { hideLoginLoading(); rLogin(); }, 400);
     }
   }, 200);
 });
 
-// Manual sync — reinitialise all characters from sheet
+// Manual sync — force fresh fetch, reinitialise all characters
 function manualSync() {
   updateSyncStatus('syncing');
-  syncFromSheet(true, true).then(ok => {  // force refresh, bypass cache
-    if (!ok) return;
-    const active = CK;
-    ['cap', 'howard', 'thowra'].forEach(k => { CK = k; initS(k); });
-    CK = active || null;
+  syncFromSheet(true, true).then(ok => {
+    initAllChars();
     captureBaseline();
-    if (active && typeof renderAll === 'function') renderAll();
+    if (CK && typeof renderAll === 'function') renderAll();
     rLogin();
   });
 }

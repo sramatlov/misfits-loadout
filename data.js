@@ -251,7 +251,7 @@ const CHARS = {
        when:"Bonny can handle tasks you're too busy for — running a scan, fetching a tool, providing a distraction. Currently missing since the Tellar wilderness trek.",
        pairs:'Any situation where an extra pair of hands (or tiny robot arms) would help.'}
     ],
-    corruption: [true,true,false,false]
+    corruption: [false,false,false,false]
   },
 
   thowra: {

@@ -94,14 +94,13 @@ function parseChar(rows, key) {
       });
     }
 
-    // Corruption — X markers = pre-marked boxes; track existence comes from data.js
+    // Corruption — X markers = pre-marked boxes; only Howard has a corruption track
     if (label === 'corruption') {
       const marked = [];
       STRESS_OFFSETS.forEach((off, idx) => {
         if (cv(row, col + off).toUpperCase() === 'X') marked.push(idx);
       });
-      // hasCorrTrk: true only for howard (check data.js)
-      out.hasCorrTrk = typeof CHARS !== 'undefined' && CHARS[key]?.corruption !== null;
+      out.hasCorrTrk = (key === 'howard');  // hardcoded — only Howard has corruption
       out.corrMarked = marked;
     }
 
