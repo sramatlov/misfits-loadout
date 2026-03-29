@@ -100,8 +100,9 @@ function parseChar(rows, key) {
       STRESS_OFFSETS.forEach((off, idx) => {
         if (cv(row, col + off).toUpperCase() === 'X') marked.push(idx);
       });
-      out.hasCorrTrk = (key === 'howard');  // hardcoded — only Howard has corruption
+      out.hasCorrTrk = (key === 'howard');
       out.corrMarked = marked;
+      console.log(`[sync] ${key} corruption row: offsets checked=${STRESS_OFFSETS.map(o=>cv(row,col+o))}, marked=${JSON.stringify(marked)}, hasCorrTrk=${out.hasCorrTrk}`);
     }
 
     // Consequences
@@ -167,12 +168,11 @@ function applySheetData(key, parsed) {
   // Corruption track — reset to sheet state, then apply X markers
   if (parsed.corrMarked !== undefined) {
     if (parsed.hasCorrTrk) {
-      // Reset to empty, then mark only what the sheet shows
       const corrCount = 4;
       c.corruption = Array(corrCount).fill(false);
       parsed.corrMarked.forEach(idx => { if (idx < corrCount) c.corruption[idx] = true; });
+      console.log(`[sync] applied ${key} corruption:`, JSON.stringify(c.corruption));
     } else {
-      // No corruption track for this character
       c.corruption = null;
     }
   }

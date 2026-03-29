@@ -35,6 +35,7 @@ function buildState(k, savedSession) {
   c.aspects.forEach((_, i) => fi[i] = 0);
 
   const corruption = c.corruption ? c.corruption.slice() : null;
+  console.log(`[buildState] ${k} corruption from CHARS:`, JSON.stringify(c.corruption), '→ session:', JSON.stringify(corruption));
 
   if (savedSession) {
     // Preserve session-only: FP, move usage, log, skView
