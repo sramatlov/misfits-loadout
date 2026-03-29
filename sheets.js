@@ -75,22 +75,8 @@ function parseChar(rows, key) {
       out.skills[sk] = (v !== '' && !isNaN(parseFloat(v))) ? parseInt(parseFloat(v)) : 0;
     }
 
-    // Stress tracks — row label is "stress tracks"
-    // Box count = number of non-empty cells at col+0,+2,+4,+6
-    if (label === 'stress tracks') {
-      // Count how many boxes exist — each box number sits at col+0, col+2, col+4, col+6
-      let boxCount = 0;
-      for (const off of STRESS_OFFSETS) {
-        const v = cv(row, col + off);
-        if (v !== '' && !isNaN(parseFloat(v))) boxCount++;
-      }
-      // Physical and mental share same row — split: first half phys, second half ment
-      // Actually from the sheet both phys and ment counts are in the same 4 slots
-      // The split is determined by the Physique/Will ratings (higher phys = more phys boxes)
-      // But simpler: the sheet just has total count, we split based on existing data.js ratios
-      // Store raw count and let applySheetData figure out the split
-      out.stressBoxCount = boxCount;
-    }
+    // Stress tracks row (row 39) just shows box labels 1,2,3,4 — not meaningful
+    // Box counts are derived from Physique/Will skill ratings per Fate Core rules
 
     // Corruption — X markers at col+0, col+2 etc mean corruption boxes
     if (label === 'corruption') {
@@ -163,25 +149,15 @@ function applySheetData(key, parsed) {
     Object.assign(c.skills, parsed.skills);
   }
 
-  // Stress box counts
-  // The sheet has one row of stress boxes per character covering both phys and ment
-  // We determine phys vs ment split based on Physique and Will ratings
-  if (parsed.stressBoxCount) {
-    const phys = c.skills.Physique || 0;
-    const will = c.skills.Will || 0;
-    // Physique adds extra phys boxes at +3 and +4; Will adds mental
-    // Base = 3 phys, 3 ment. +1 box for Avg/Fair, +2 for Good/Great, extra con for Superb
-    const physBase = phys >= 3 ? 4 : 3;
-    const mentBase = will >= 3 ? 4 : 3;
-    // Bonus boxes from extras
-    const physBonus = phys >= 5 ? 1 : 0;
-    const mentBonus = will >= 5 ? 1 : 0;
-    c.stress.phys.boxes = physBase + physBonus;
-    c.stress.ment.boxes = mentBase + mentBonus;
-    // bonus field for dashed rendering
-    c.stress.phys.bonus = phys >= 1 && phys <= 2 ? 1 : phys >= 3 ? 2 : 0;
-    c.stress.ment.bonus = will >= 1 && will <= 2 ? 1 : will >= 3 ? 2 : 0;
-  }
+  // Stress box counts — calculated from Fate Core rules:
+  // Physique/Will 0 = 2 boxes, +1/+2 = 3 boxes, +3/+4 = 4 boxes, +5 = 4 boxes + extra mild con
+  const phys = c.skills.Physique || 0;
+  const will = c.skills.Will || 0;
+  c.stress.phys.boxes = phys >= 3 ? 4 : phys >= 1 ? 3 : 2;
+  c.stress.ment.boxes = will >= 3 ? 4 : will >= 1 ? 3 : 2;
+  // bonus = dashed extra boxes from high skill
+  c.stress.phys.bonus = phys >= 3 ? 2 : phys >= 1 ? 1 : 0;
+  c.stress.ment.bonus = will >= 3 ? 2 : will >= 1 ? 1 : 0;
 
   // Corruption track
   if (parsed.hasCorrTrk !== undefined) {
