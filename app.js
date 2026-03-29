@@ -498,7 +498,8 @@ function closeEndSession() {
 
 function startNewSession() {
   closeEndSession();
-  // Re-sync sheet and reinitialise all characters
+  // Clear all saved session state
+  localStorage.removeItem(LS_KEY);
   updateSyncStatus('syncing');
   syncFromSheet(true).then(ok => {
     const active = CK;

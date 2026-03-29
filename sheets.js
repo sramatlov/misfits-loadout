@@ -107,7 +107,7 @@ function parseChar(rows, key) {
     // Consequences
     if (CON_MAP[label]) {
       const def = CON_MAP[label];
-      out.cons.push({ id: `con_${ri}`, lbl: def.lbl, abs: def.abs, rec: def.rec, src: 'base', val: cv(row, col) || null });
+      out.cons.push({ id: `${key}_con_${ri}`, lbl: def.lbl, abs: def.abs, rec: def.rec, src: 'base', val: cv(row, col) || null });
     }
 
     // Aspects
