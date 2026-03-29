@@ -1,7 +1,7 @@
 # Misfits Loadout
 ### Field Terminal — Intergalactic Cargo Inc.
 
-A mobile-first companion app for **The Misfits**, a Fate Core tabletop RPG campaign. Built for use at the table on your phone — no internet required once loaded.
+A mobile-first companion app for **The Misfits**, a Fate Core tabletop RPG campaign. Built for use at the table on your phone.
 
 > *"Legitimate cargo haulers. Definitely."*
 
@@ -15,6 +15,7 @@ A character sheet app for three crew members of the freight vessel *Harry the Ha
 - Animated star field with occasional ship flyby
 - Frosted glass character select cards
 - Skull logo with glow and static flicker effect
+- Boot loading screen with live sync on startup
 
 **Character screens**
 - Fate Points with custom SVG icon — tap to spend or gain
@@ -33,9 +34,22 @@ A character sheet app for three crew members of the freight vessel *Harry the Ha
 **Details**
 - Maxed stress triggers icon shake animation
 - Circuit board animation on the logout screen
-- 10 randomised logout flavor texts
-- Session state persists via localStorage
+- 10 randomised logout flavour texts
+- Session state persists via localStorage (FP, stress, moves, log)
 - New session / reset confirmation dialogs
+- End session report showing FP, stress, corruption and consequence changes
+
+---
+
+## Data sync
+
+Character sheet data lives in Google Sheets and is always fetched live on load — no cache.
+
+- **PC data** (`PC_app` tab) — fetched via Google Apps Script for real-time accuracy
+- **Best/Teamwork data** (`Best_app` tab) — fetched via published CSV in the background
+- **Sync Data** button forces a fresh fetch and clears session state
+
+The Apps Script URL is in `sheets.js`. If the sheet structure changes, update the field keys there.
 
 ---
 
@@ -66,19 +80,11 @@ This app implements a custom Fate Core skill set:
 ## File structure
 
 ```
-index.html          — app shell
-style.css           — all styles
-app.js              — all logic and rendering
-data.js             — character data, icons, SVGs
-
-logo.svg            — login screen skull logo
-cap_portrait.svg    — Cap character portrait
-howard_portrait.svg — Howard character portrait
-thowra_portrait.svg — Thowra character portrait
-fate_point.svg      — fate point icon
-bones.svg           — physical stress icon
-brain.svg           — mental stress icon
-omega.svg           — corruption clock icon
+index.html    — app shell and all HTML
+style.css     — all styles
+app.js        — all logic and rendering
+data.js       — character data, game rules, SVG icons (portraits, FP, stress, corruption)
+sheets.js     — Google Sheets sync (Apps Script + CSV fetching, data application)
 ```
 
 ---
@@ -87,7 +93,7 @@ omega.svg           — corruption clock icon
 
 Plain HTML, CSS and vanilla JavaScript. No framework, no build step, no dependencies. Works as a local file or hosted on GitHub Pages.
 
-State is saved to `localStorage` per character — stress, fate points, consequences, moves and session log all persist between sessions.
+Session state is saved to `localStorage` per character — stress, fate points, consequences, moves and session log persist between page loads. Sheet data (skills, aspects, stunts, refresh, stress counts) always comes from Google Sheets.
 
 ---
 
@@ -99,6 +105,6 @@ State is saved to `localStorage` per character — stress, fate points, conseque
 
 ## Campaign
 
-*A Space Oddity* is a Fate Core sci-fi campaign. The crew operates under the front of Intergalactic Cargo Inc. Tone: irreverent humor with genuine emotional weight. Think Firefly, but with more paperwork violations.
+*A Space Oddity* is a Fate Core sci-fi campaign. The crew operates under the front of Intergalactic Cargo Inc. Tone: irreverent humour with genuine emotional weight. Think Firefly, but with more paperwork violations.
 
 Built and maintained for private use at the table. Not affiliated with Evil Hat Productions.

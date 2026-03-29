@@ -20,16 +20,6 @@ async function fetchWithTimeout(url, ms = 10000) {
   }
 }
 
-// ─── FETCH PC DATA FROM APPS SCRIPT ───
-async function fetchPCData() {
-  const res = await fetchWithTimeout(APPS_SCRIPT_URL);
-  if (!res) return null;
-  try {
-    const json = await res.json();
-    return json.ok ? json.characters : null;
-  } catch { return null; }
-}
-
 // ─── APPLY PC DATA ───
 // characters = { cap: { field: value, ... }, howard: {...}, thowra: {...} }
 function applyPCData(characters) {
@@ -189,23 +179,6 @@ async function fetchBoth() {
     });
     return json.characters;
   } catch { return null; }
-}
-
-function applyCache(characters) {
-  applyPCData(characters);
-}
-
-// ─── SYNC (manual) ───
-async function syncFromSheet(showStatus) {
-  if (showStatus) updateSyncStatus('syncing');
-  const characters = await fetchBoth();
-  if (characters) {
-    applyPCData(characters);
-    if (showStatus) updateSyncStatus('ok');
-    return true;
-  }
-  if (showStatus) updateSyncStatus('err');
-  return false;
 }
 
 function updateSyncStatus(state) {

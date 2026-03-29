@@ -82,12 +82,11 @@ function initAllChars() {
     result[k] = buildState(k, ls[k]);
   });
   // Write all three to localStorage in one shot
-  const fresh = loadLS();
   ['cap', 'howard', 'thowra'].forEach(k => {
     const { selAction, expSkill, expMove, ...persist } = result[k];
-    fresh[k] = persist;
+    ls[k] = persist;
   });
-  localStorage.setItem(LS_KEY, JSON.stringify(fresh));
+  localStorage.setItem(LS_KEY, JSON.stringify(ls));
   // If a character is currently active, update S from the fresh state
   if (CK && result[CK]) S = result[CK];
 }
@@ -109,8 +108,6 @@ function stuntMatch(st, action) {
   if (action === 'overcome') return st.tp === 'overcome' || st.tp === 'support' || st.tp === 'wild';
   return st.tp === 'advantage' || st.tp === 'support' || st.tp === 'wild';
 }
-
-function dispName(key) { return SKILL_DISPLAY[key] || key; }
 
 // ─── ANIMATIONS ───
 function animPulse(el, cls) {
@@ -566,15 +563,21 @@ function closeEndSession() {
 
 function startNewSession() {
   localStorage.removeItem(LS_KEY);
-  updateSyncStatus('syncing');
-  syncFromSheet(true, true).then(() => {
+  showLoginLoading();
+  setLoadingProgress(15, 'Contacting Harry the Hauler...');
+  fetchBoth().then(characters => {
+    if (characters) applyPCData(characters);
     initAllChars();
     captureBaseline();
     CK = null;
-    $('app').classList.remove('on');
-    $('login').classList.remove('off');
-    switchTab('moves');
-    rLogin();
+    setLoadingProgress(100, 'New session ready.');
+    setTimeout(() => {
+      hideLoginLoading();
+      $('app').classList.remove('on');
+      $('login').classList.remove('off');
+      switchTab('moves');
+      rLogin();
+    }, 200);
   });
 }
 function togColl(id)    { $(id).classList.toggle('open'); }
@@ -997,10 +1000,6 @@ function initStars() {
   requestAnimationFrame(draw);
   window.addEventListener('resize', resize);
 }
-
-// ─── BOOT ───
-rLogin();
-initStars();
 
 // ─── BOOT ───
 rLogin();
