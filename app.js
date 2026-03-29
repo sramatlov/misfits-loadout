@@ -563,7 +563,6 @@ function closeEndSession() {
 
 function startNewSession() {
   localStorage.removeItem(LS_KEY);
-  localStorage.removeItem(SHEET_CACHE_KEY);
   updateSyncStatus('syncing');
   syncFromSheet(true, true).then(() => {
     initAllChars();
@@ -1000,34 +999,34 @@ function initStars() {
 rLogin();
 initStars();
 
-// Auto-sync on load with loading screen
-showLoginLoading();
-setLoadingProgress(15, 'Contacting Harry the Hauler...');
-syncFromSheet(true).then(ok => {
-  setLoadingProgress(60, ok ? 'Parsing crew manifest...' : 'Harry not responding — using local data...');
-  setTimeout(() => {
-    if (ok) {
-      setLoadingProgress(85, 'Initialising crew terminals...');
-      setTimeout(() => {
-        initAllChars();
-        captureBaseline();
-        setLoadingProgress(100, 'Systems online.');
-        setTimeout(() => { hideLoginLoading(); rLogin(); }, 300);
-      }, 200);
-    } else {
-      // No sheet data — still init from data.js defaults
-      initAllChars();
-      setLoadingProgress(100, 'Running on local data.');
-      setTimeout(() => { hideLoginLoading(); rLogin(); }, 400);
-    }
-  }, 200);
-});
+// ─── BOOT ───
+rLogin();
+initStars();
+
+(async () => {
+  showLoginLoading();
+  setLoadingProgress(20, 'Contacting Harry the Hauler...');
+  const data = await fetchBoth();
+  if (data) {
+    setLoadingProgress(70, 'Parsing crew manifest...');
+    applyCache(data);
+    setLoadingProgress(90, 'Initialising crew terminals...');
+    initAllChars();
+    captureBaseline();
+    setLoadingProgress(100, 'Systems online.');
+    updateSyncStatus('ok');
+  } else {
+    setLoadingProgress(100, 'Offline — using local data.');
+    initAllChars();
+    captureBaseline();
+    updateSyncStatus('err');
+  }
+  setTimeout(() => { hideLoginLoading(); rLogin(); }, 200);
+})();
 
 // Manual sync — force fresh fetch, reinitialise all characters
 function manualSync() {
-  // Wipe all local state — sheet is the source of truth
   localStorage.removeItem(LS_KEY);
-  localStorage.removeItem(SHEET_CACHE_KEY);
   // Show loading screen animation
   showLoginLoading();
   setLoadingProgress(15, 'Contacting Harry the Hauler...');
@@ -1039,7 +1038,12 @@ function manualSync() {
         initAllChars();
         captureBaseline();
         setLoadingProgress(100, ok ? 'Data synced.' : 'Running on local data.');
-        setTimeout(() => { hideLoginLoading(); rLogin(); }, 300);
+        setTimeout(() => {
+          hideLoginLoading();
+          // If a character screen was open, re-render it with fresh data
+          if (CK && typeof renderAll === 'function') renderAll();
+          rLogin();
+        }, 300);
       }, 200);
     }, 200);
   });

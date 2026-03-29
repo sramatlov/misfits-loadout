@@ -5,9 +5,6 @@
 const PC_APP_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSM4t7tbXZbDcph1wFRn8Et5sjFsOqBjTEqreYSDq2vMMB8LB2XzW4Sq-ju_E7iKdFeoiteqGxZI4Ap/pub?gid=1437179692&single=true&output=csv';
 const BEST_APP_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSM4t7tbXZbDcph1wFRn8Et5sjFsOqBjTEqreYSDq2vMMB8LB2XzW4Sq-ju_E7iKdFeoiteqGxZI4Ap/pub?gid=1991436452&single=true&output=csv';
 
-const SHEET_CACHE_KEY = 'misfits-sheet-cache';
-const SHEET_CACHE_TTL = 1000 * 60 * 2; // 2 min — consequences need to stay fresh
-
 // ─── CSV PARSER ───
 function parseCSV(text) {
   const rows = [];
@@ -105,14 +102,8 @@ function applyPCData(map) {
     ];
     conDefs.forEach((def, i) => {
       if (map[def.key] !== undefined) {
-        c.cons.push({
-          id:  `${k}_${def.key}`,
-          lbl: def.lbl,
-          abs: def.abs,
-          rec: def.rec,
-          src: 'base',
-          val: map[def.key][k] || null
-        });
+        const val = map[def.key][k] || null;
+        c.cons.push({ id: `${k}_${def.key}`, lbl: def.lbl, abs: def.abs, rec: def.rec, src: 'base', val });
       }
     });
 
@@ -196,36 +187,15 @@ async function fetchCSV(url) {
   }
 }
 
-// ─── MAIN SYNC ───
-async function syncFromSheet(showStatus, forceRefresh = false) {
+// ─── MAIN SYNC (used by manualSync only — boot has its own flow) ───
+async function syncFromSheet(showStatus) {
   if (showStatus) updateSyncStatus('syncing');
-
-  // Try cache first unless forced
-  if (!forceRefresh) {
-    const cached = loadSheetCache();
-    if (cached) {
-      applyCache(cached);
-      if (showStatus) updateSyncStatus('ok');
-      // Always refresh in background — cache may be stale
-      fetchBoth().then(data => {
-        if (data) { saveSheetCache(data); applyCache(data); if (typeof reinitAllChars === 'function') reinitAllChars(); }
-      });
-      return true;  // CHARS updated — caller must call initAllChars
-    }
-  }
-
-  // Fetch fresh
   const data = await fetchBoth();
   if (data) {
-    saveSheetCache(data);
     applyCache(data);
     if (showStatus) updateSyncStatus('ok');
     return true;
   }
-
-  // Fallback to stale cache
-  const stale = loadSheetCache(true);
-  if (stale) { applyCache(stale); if (showStatus) updateSyncStatus('err'); return true; }
   if (showStatus) updateSyncStatus('err');
   return false;
 }
@@ -239,20 +209,6 @@ async function fetchBoth() {
 function applyCache(data) {
   if (data.pc)   applyPCData(csvToMap(data.pc));
   if (data.best) applyBestData(data.best);
-}
-
-function saveSheetCache(data) {
-  try { localStorage.setItem(SHEET_CACHE_KEY, JSON.stringify({ data, ts: Date.now() })); } catch {}
-}
-
-function loadSheetCache(allowStale = false) {
-  try {
-    const raw = localStorage.getItem(SHEET_CACHE_KEY);
-    if (!raw) return null;
-    const { data, ts } = JSON.parse(raw);
-    if (!allowStale && Date.now() - ts > SHEET_CACHE_TTL) return null;
-    return data;
-  } catch { return null; }
 }
 
 function updateSyncStatus(state) {
