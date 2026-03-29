@@ -32,13 +32,14 @@ function initS(k) {
   const corruption = c.corruption ? c.corruption.slice() : null;
 
   if (saved) {
-    // Preserve session-only state: FP, marked stress, move usage, corruption marks, log
+    // Preserve session-only state: FP, move usage, corruption marks, log
+    // Stress resets to sheet initial state (empty unless sheet has X markers)
     S = {
       fp: saved.fp !== undefined ? saved.fp : c.refresh,
-      stress: saved.stress || { phys: physArr, ment: mentArr },
+      stress: { phys: physArr, ment: mentArr },
       moves: saved.moves || moves,
-      cons,           // always from sheet
-      fi,             // always from sheet
+      cons,
+      fi,
       corruption: saved.corruption !== undefined ? saved.corruption : corruption,
       selAction: null, expSkill: null, expMove: null,
       skView: saved.skView || 'groups',
