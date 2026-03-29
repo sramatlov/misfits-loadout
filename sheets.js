@@ -229,8 +229,6 @@ async function syncFromSheet(showStatus) {
       const parsed = parseChar(rows, k);
       applySheetData(k, parsed);
     });
-    // Re-render if character screen is open
-    if (typeof renderAll === 'function' && typeof CK !== 'undefined' && CK) renderAll();
     if (showStatus) updateSyncStatus('ok');
     return true;
   } catch (e) {
