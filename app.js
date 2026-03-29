@@ -13,11 +13,16 @@ function initS(k) {
   CK = k;
   const c = CHARS[k], saved = loadLS()[k];
   if (saved) { S = saved; return; }
+  const physArr = Array(c.stress.phys.boxes).fill(false);
+  const mentArr = Array(c.stress.ment.boxes).fill(false);
+  // Apply pre-marked boxes from sheet (e.g. ongoing consequences)
+  if (c.stress.phys.preMarked) c.stress.phys.preMarked.forEach(i => { if (i < physArr.length) physArr[i] = true; });
+  if (c.stress.ment.preMarked) c.stress.ment.preMarked.forEach(i => { if (i < mentArr.length) mentArr[i] = true; });
   S = {
     fp: c.refresh,
-    stress: { phys: Array(c.stress.phys.boxes).fill(false), ment: Array(c.stress.ment.boxes).fill(false) },
+    stress: { phys: physArr, ment: mentArr },
     moves: {}, cons: {}, fi: {},
-    corruption: c.corruption ? c.corruption.marked.slice() : null,
+    corruption: c.corruption ? c.corruption.slice() : null,
     selAction: null, expSkill: null, expMove: null, skView: 'groups', log: []
   };
   [...c.stunts, ...c.extras].forEach(m => S.moves[m.id] = false);

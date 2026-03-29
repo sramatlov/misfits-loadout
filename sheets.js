@@ -78,16 +78,30 @@ function parseChar(rows, key) {
     // Stress tracks row (row 39) just shows box labels 1,2,3,4 — not meaningful
     // Box counts are derived from Physique/Will skill ratings per Fate Core rules
 
+    // Physical stress — X markers mean pre-marked boxes
+    if (label === 'physical') {
+      out.physMarked = [];
+      STRESS_OFFSETS.forEach((off, idx) => {
+        if (cv(row, col + off).toUpperCase() === 'X') out.physMarked.push(idx);
+      });
+    }
+
+    // Mental stress — X markers mean pre-marked boxes
+    if (label === 'mental') {
+      out.mentMarked = [];
+      STRESS_OFFSETS.forEach((off, idx) => {
+        if (cv(row, col + off).toUpperCase() === 'X') out.mentMarked.push(idx);
+      });
+    }
+
     // Corruption — X markers at col+0, col+2 etc mean corruption boxes
     if (label === 'corruption') {
       const marked = [];
       STRESS_OFFSETS.forEach((off, idx) => {
         if (cv(row, col + off).toUpperCase() === 'X') marked.push(idx);
       });
-      out.hasCorrTrk = marked.length > 0 || cv(row, col).toUpperCase() === 'X';
+      out.hasCorrTrk = marked.length > 0;
       out.corrMarked = marked;
-      // Total corruption boxes = number of non-empty cells in stress row for this char
-      // We'll reuse stressBoxCount for this
     }
 
     // Consequences
@@ -159,13 +173,19 @@ function applySheetData(key, parsed) {
   c.stress.phys.bonus = phys >= 3 ? 2 : phys >= 1 ? 1 : 0;
   c.stress.ment.bonus = will >= 3 ? 2 : will >= 1 ? 1 : 0;
 
+  // Pre-marked physical stress
+  if (parsed.physMarked) c.stress.phys.preMarked = parsed.physMarked;
+
+  // Pre-marked mental stress
+  if (parsed.mentMarked) c.stress.ment.preMarked = parsed.mentMarked;
+
   // Corruption track
   if (parsed.hasCorrTrk !== undefined) {
     if (parsed.hasCorrTrk) {
-      // Count boxes from stress row — corruption uses same count as total stress boxes
-      const corrCount = 4; // Howard has 4 corruption boxes
+      const corrCount = 4;
       if (!c.corruption) c.corruption = Array(corrCount).fill(false);
-      else if (c.corruption.length !== corrCount) c.corruption = Array(corrCount).fill(false);
+      // Pre-mark corruption boxes from sheet
+      parsed.corrMarked.forEach(idx => { if (idx < corrCount) c.corruption[idx] = true; });
     } else {
       c.corruption = null;
     }
