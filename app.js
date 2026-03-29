@@ -12,10 +12,21 @@ function saveLS() { const d = loadLS(); d[CK] = S; localStorage.setItem(LS_KEY, 
 function initS(k) {
   CK = k;
   const c = CHARS[k], saved = loadLS()[k];
-  if (saved) { S = saved; return; }
+  if (saved) {
+    S = saved;
+    // Always rebuild cons from sheet — sheet is source of truth
+    S.cons = {};
+    c.cons.forEach(cn => S.cons[cn.id] = cn.val);
+    // Rebuild fi if aspects changed
+    if (Object.keys(S.fi || {}).length !== c.aspects.length) {
+      S.fi = {};
+      c.aspects.forEach((_, i) => S.fi[i] = 0);
+    }
+    saveLS();
+    return;
+  }
   const physArr = Array(c.stress.phys.boxes).fill(false);
   const mentArr = Array(c.stress.ment.boxes).fill(false);
-  // Apply pre-marked boxes from sheet (e.g. ongoing consequences)
   if (c.stress.phys.preMarked) c.stress.phys.preMarked.forEach(i => { if (i < physArr.length) physArr[i] = true; });
   if (c.stress.ment.preMarked) c.stress.ment.preMarked.forEach(i => { if (i < mentArr.length) mentArr[i] = true; });
   S = {
@@ -773,8 +784,24 @@ initStars();
 updateSyncStatus('syncing');
 syncFromSheet(true).then(() => rLogin());
 
-// Manual sync from login screen
+// Manual sync — from login screen or character screen
 function manualSync() {
   updateSyncStatus('syncing');
-  syncFromSheet(true).then(ok => { if (ok) rLogin(); });
+  syncFromSheet(true).then(ok => {
+    if (!ok) return;
+    // If a character is active, preserve session state but refresh sheet-driven data
+    if (CK) {
+      const ls = loadLS();
+      const saved = ls[CK];
+      // Clear saved cons/aspects so initS rebuilds them from sheet
+      if (saved) {
+        saved.cons = {};
+        ls[CK] = saved;
+        localStorage.setItem('misfits', JSON.stringify(ls));
+      }
+      initS(CK);
+      renderAll();
+    }
+    rLogin();
+  });
 }
